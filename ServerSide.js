@@ -389,8 +389,11 @@ handlers.Construct = function (args)
 	var itemInstance;
 	if( typeof itemInstanceID != 'undefined' )
 	{
+		log += "Check for the item instance \n";
+		
 		for(i = 0; i < playerInventory.Inventory.length; i++)
 		{
+			log += " - " +playerInventory.Inventory[i].ItemInstanceID+" == "+"itemInstanceID;
 			if(playerInventory.Inventory[i].ItemInstanceID == itemInstanceID)
 			{
 				itemInstance = playerInventory.Inventory[i];
