@@ -448,7 +448,7 @@ handlers.Construct = function (args)
 	{
 		var upgrade = itemInstance.CustomData.Upgrade + 1;
 		var tier = upgrade / 10;
-		var amount = amount * ( upgrade - tier * 10);
+		var amount = parseInt(amount * ( upgrade - tier * 10));
 		
 		// CHECK materials
 		if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
