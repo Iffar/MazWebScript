@@ -465,6 +465,8 @@ handlers.Construct = function (args)
 		
 		log += "\n Amount: '" + amount+"' "+(typeof amount)+"\n";
 		
+		return { msg : log };
+		
 		// Buy		
 		if( tier > 3 )
 			balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
