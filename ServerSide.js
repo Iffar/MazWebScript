@@ -448,9 +448,6 @@ handlers.Construct = function (args)
 	{
 		var upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
 		var tier = parseInt(upgrade / 10);
-		
-		log += "\n Amount:"+amount+", Upgrade: "+upgrade +", Tier:" +tier+"\n";
-		
 		var amount = parseInt(amount * ( upgrade - tier * 10));
 		
 		// CHECK materials
@@ -465,10 +462,6 @@ handlers.Construct = function (args)
 		
 		if(playerInventory.VirtualCurrency["GC"] < item.VirtualCurrencyPrices["GC"] * upgrade/2)
 			return { error : "You don't have enough gold to upgrade this building!", serverTime: currTimeSeconds() }; 
-		
-		log += "\n Amount: '" + amount+"' "+(typeof amount)+"\n";
-		
-		return { msg : log };
 		
 		// Buy		
 		if( tier > 3 )
