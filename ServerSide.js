@@ -477,11 +477,10 @@ handlers.Construct = function (args)
 	}
 		
 	/** 3a. If this is a new building add it to the player. **/
-	var grantResult = itemInstance;
 	if ( !itemInstance )
 	{
 		log += "Item instance is null ("+itemInstance+") -> new item will be granted!";
-		grantResult = server.GrantItemsToUser({
+		var grantResult = server.GrantItemsToUser({
 						CatalogVersion:  "Buildings",
 						PlayFabId: currentPlayerId,
 						ItemIds: [itemID],
@@ -491,6 +490,8 @@ handlers.Construct = function (args)
 		// Granting the item failed
 		if(!grantResult[0].Result)
 			return { error : "Failed to grant the item ("+itemID+") to the user. " + grantResult[0].ItemId, serverTime: currTimeSeconds() };	
+		
+		itemInstanceID = grantResult[0].ItemInstanceId;
 	}	
 	
 	// If the time is not instant
@@ -502,7 +503,7 @@ handlers.Construct = function (args)
 		if( data != "" )
 			data += "|";
 			
-		data += grantResult[0].ItemInstanceId+":"+ ( currTimeSeconds() + time );
+		data += itemInstanceID+":"+ ( currTimeSeconds() + time );
 		
 		// Update the user "Crafting" data with this building.
 		server.UpdateUserData({
@@ -526,12 +527,12 @@ handlers.Construct = function (args)
 	// Update the position data of the building
 	server.UpdateUserInventoryItemCustomData({
 		PlayFabId: currentPlayerId,
-		ItemInstanceId: grantResult[0].ItemInstanceId,
+		ItemInstanceId: itemInstanceID,
 		Data: customData
 	});
 	
 	// Return the informations
-	return { msg : log, ItemInstanceID: grantResult[0].ItemInstanceId, UserDataConstruct: data, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg : log, ItemInstanceID: itemInstanceID, UserDataConstruct: data, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
