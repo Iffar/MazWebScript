@@ -393,7 +393,7 @@ handlers.Construct = function (args)
 		
 		for(i = 0; i < playerInventory.Inventory.length; i++)
 		{
-			log += " - " +playerInventory.Inventory[i].ItemInstanceID+" == "+"itemInstanceID;
+			log += " - "+playerInventory.Inventory[i].ItemInstanceID+" == "+itemInstanceID;
 			if(playerInventory.Inventory[i].ItemInstanceID == itemInstanceID)
 			{
 				itemInstance = playerInventory.Inventory[i];
