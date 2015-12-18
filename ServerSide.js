@@ -447,7 +447,7 @@ handlers.Construct = function (args)
 	else
 	{
 		var upgrade = itemInstance.CustomData.Upgrade + 1;
-		var tier = (int)(upgrade / 10);
+		var tier = upgrade / 10;
 		var amount = amount * ( upgrade - tier * 10);
 		
 		// CHECK materials
@@ -464,12 +464,9 @@ handlers.Construct = function (args)
 			return { error : "You don't have enough gold to upgrade this building!", serverTime: currTimeSeconds() }; 
 		
 		
-		// Buy
-		
+		// Buy		
 		if( tier > 3 )
-		{
 			balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
-		}
 		if( tier > 2 )
 			balance.IR = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "IR", Amount: amount}).Balance;
 		if( tier > 1 )
