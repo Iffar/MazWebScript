@@ -428,7 +428,7 @@ handlers.Construct = function (args)
 	// Base price is X Wood. X is multiplied by every upgrades. 
 	// New material is added after every 10th upgrades (Wood-Stone-Iron-Steel), and the price resets to the base price.
 	
-	var amount = item.VirtualCurrencyPrices["WO"];
+	var amount = parseInt(item.VirtualCurrencyPrices["WO"]);
 	var balance = playerInventory.VirtualCurrency;
 	
 	if( !itemInstance )
@@ -472,7 +472,7 @@ handlers.Construct = function (args)
 		if( tier > 1 )
 			balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
 		if( tier > 0 )
-			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: amount}).Balance;		
+			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: parseInt(amount)}).Balance;		
 		
 		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: item.VirtualCurrencyPrices["GC"] * upgrade/2}).Balance;		
 	}
