@@ -446,8 +446,8 @@ handlers.Construct = function (args)
 	}
 	else
 	{
-		var upgrade = itemInstance.CustomData.Upgrade + 1;
-		var tier = upgrade / 10;
+		var upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
+		var tier = parseInt(upgrade / 10);
 		
 		log += "\n Amount:"+amount+", Upgrade: "+upgrade +", Tier:" +tier+"\n";
 		
