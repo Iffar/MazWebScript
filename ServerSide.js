@@ -463,6 +463,7 @@ handlers.Construct = function (args)
 		if(playerInventory.VirtualCurrency["GC"] < item.VirtualCurrencyPrices["GC"] * upgrade/2)
 			return { error : "You don't have enough gold to upgrade this building!", serverTime: currTimeSeconds() }; 
 		
+		log += "\n Amount: '" + amount+"' "+(typeof amount)+"\n";
 		
 		// Buy		
 		if( tier > 3 )
