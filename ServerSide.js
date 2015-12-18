@@ -522,7 +522,7 @@ handlers.Construct = function (args)
 		customData.CurrHealth = customData.HP;
 	}	
 	
-	customData.Upgrade = ( !itemInstance ) ? 0 : itemInstance.CustomData.Upgrade + 1;
+	customData.Upgrade = ( !itemInstance ) ? 0 : parseInt(itemInstance.CustomData.Upgrade) + 1;
 	
 	// Update the position data of the building
 	server.UpdateUserInventoryItemCustomData({
