@@ -1,4 +1,4 @@
-﻿// v0.31
+﻿// v0.32
 function currTimeSeconds()
 {
 	var now = new Date();
