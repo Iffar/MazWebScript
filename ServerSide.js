@@ -532,7 +532,7 @@ handlers.Construct = function (args)
 	});
 	
 	// Return the informations
-	return { msg : log, ItemInstanceID: itemInstanceID, UserDataConstruct: data, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg : log, ItemInstanceID: itemInstanceID, UserDataConstruct: data, Upgrade: customData.Upgrade, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
