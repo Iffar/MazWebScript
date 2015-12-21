@@ -587,7 +587,7 @@ handlers.Mine = function (args)
 		}
 	}		
 	if( typeof buildingInstance == 'undefined' )
-		return { error : "You don't own this item ("+itemID+","+playerInventory.length+")!", serverTime: currTimeSeconds()  }; 
+		return { error : "You don't own this item ("+itemID+","+playerInventory+")!", serverTime: currTimeSeconds()  }; 
 	
 	
 	// Check storage
