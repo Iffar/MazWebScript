@@ -550,17 +550,16 @@ handlers.Construct = function (args)
  */
 handlers.Mine = function (args)
 {
-	/*var itemID = args.ItemID;
-	var buildingInstanceID = args.BuildingInstanceID;
-	var slot = args.SlotNumber;
+	var itemID = args.ItemID;
+	var buildingInstanceID = args.ItemInstanceID;
 	
-	if( typeof buildingInstanceID == 'undefined' )
+	if( typeof buildingInstanceID == 'undefined' || buildingInstanceID == "")
 		return { error : "Error: only a constructed building can mine!", serverTime: currTimeSeconds()  }; 
 	
 	// Get UserData
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
 	
-	// Get the item data from the catalog
+	// Get the building data from the catalog
 	var item;
 	var itemList = server.GetCatalogItems({ CatalogVersion: "Buildings" }).Catalog;
 	for(i = 0; i < itemList.length; i++)
@@ -587,48 +586,53 @@ handlers.Mine = function (args)
 		return { error : "You don't own this item!", serverTime: currTimeSeconds()  }; 
 	
 	
-	
-	
-	
-	
-	
-	
+	// Check storage
+	// -- TODO --
+		
 	// Check for free mining slots	
+	var cnt = -1;
 	var mineProgresses = ( typeof userData.Mine != 'undefined' && typeof userData.Mine.Value != 'undefined' ) ? userData.Mine.Value.split('|') : "";
 	for(i = 0; i < mineProgresses.length; i++)
 	{
 		var buildingData = mineProgresses[i].split(":");
 		if( buildingData[0] == buildingInstanceID )
 		{
-			
-			
-		}
-		
-		if(playerInventory.Inventory[i].ItemInstanceID == buildingInstanceID)
-		{
-			itemInstance = playerInventory.Inventory[i];
-			break;
-		}
+			cnt = i;
+			var slots = buildingData[1].split("-");			
+			if( slots.length > parseInt(buildingInstance.CustomData.Upgrade / 10)+3)
+				return { error : "You don't have free slot to make this material!", serverTime: currTimeSeconds()  }; 		
+		}		
 	}	
 	
+	// Check prices
+	var balance = playerInventory.VirtualCurrency;
+	var pieces = parseInt(buildingInstance.CustomData.Upgrade)+1;
+	var price = pieces * parseInt(buildingInstance.CustomData.Price);
+	if(balance.GC < price)
+		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
+	
+	// Buy the material	
+	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price).Balance;		
+	
+	var buildingData = mineProgresses[cnt].split(":");	
+	var finishTime = currTimeSeconds() + 60;	
+	buildingData[1] += finishTime+","+pieces+","+buildingInstance.CustomData.Material;
+	mineProgresses[cnt] = buildingData.join(":");
+	
+	var data = mineProgresses.join('|');
+	
+	server.UpdateUserData({			
+		PlayFabId: currentPlayerId,
+		Data: {Mine : data},
+	});
 	
 	
-	// Query data
+	// MINE DATA: 
+	//		[BuildingInstanceID] : [finish],[amount],[material] - [finish],[amount],[material] - [finish],[amount],[material] |
+	// 		[BuildingInstanceID] : [finish],[amount],[material] - [finish],[amount],[material] - [finish],[amount],[material] |
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// 1. Check 
-	var amount = item.VirtualCurrencyPrices["WO"];
-	var currency = playerInventory.VirtualCurrency;
-	*/
+	return { msg : log, ItemInstanceID: itemInstanceID, UserDataMine: data, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
