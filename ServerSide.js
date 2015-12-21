@@ -612,7 +612,7 @@ handlers.Mine = function (args)
 		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
 	
 	// Buy the material	
-	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price).Balance;		
+	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
 	var buildingData = mineProgresses[cnt].split(":");	
 	var finishTime = currTimeSeconds() + 60;	
