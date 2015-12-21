@@ -584,7 +584,7 @@ handlers.Mine = function (args)
 			itemInstance = playerInventory.Inventory[i];
 	}		
 	if( typeof buildingInstance == 'undefined' )
-		return { error : "You don't own this item!", serverTime: currTimeSeconds()  }; 
+		return { error : "You don't own this item ("+itemID+","+buildingInstanceID+")!", serverTime: currTimeSeconds()  }; 
 	
 	
 	// Check storage
