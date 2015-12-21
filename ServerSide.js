@@ -581,7 +581,10 @@ handlers.Mine = function (args)
 	for(i = 0; i < playerInventory.Inventory.length; i++)
 	{
 		if(playerInventory.Inventory[i].ItemInstanceID == buildingInstanceID)
+		{
 			buildingInstance = playerInventory.Inventory[i];
+			break;
+		}
 	}		
 	if( typeof buildingInstance == 'undefined' )
 		return { error : "You don't own this item ("+itemID+","+buildingInstanceID+")!", serverTime: currTimeSeconds()  }; 
