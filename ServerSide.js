@@ -550,6 +550,7 @@ handlers.Construct = function (args)
  */
 handlers.Mine = function (args)
 {
+	var log = "";
 	var itemID = args.ItemID;
 	var buildingInstanceID = args.ItemInstanceID;
 	
