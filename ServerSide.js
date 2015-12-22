@@ -393,7 +393,7 @@ handlers.CheckProgress = function ( args )
 				},
 		});		
 	}
-	return { Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
+	return { Balance: "balance", UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
 
 
