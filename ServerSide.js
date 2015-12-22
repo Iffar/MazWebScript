@@ -343,7 +343,6 @@ handlers.CheckProgress = function ( args )
 	var constructString = (construct != "" ) ? construct.join("|") : ""; 
 	
 	
-	
 	// Check mine progress
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
@@ -377,7 +376,6 @@ handlers.CheckProgress = function ( args )
 	
 	
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
-	
 	
 	
 	// Check craft progress		
