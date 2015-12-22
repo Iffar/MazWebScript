@@ -320,7 +320,7 @@ handlers.buyCharacter = function(args)
 
 handlers.CheckProgress = function ( args )
 {
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct"]}).Data;  // ADD more!
+	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Mine", "Craft"]}).Data;  // ADD more!
 	var needUpdate = false;	
 	
 	// Check construction progresses
@@ -373,8 +373,7 @@ handlers.CheckProgress = function ( args )
 	}		
 	
 	// Check storage size in the userdata
-	
-	
+		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
 	
 	
@@ -655,7 +654,7 @@ handlers.Mine = function (args)
 	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
 	var data = "";
-	var finishTime = currTimeSeconds() + 60;	
+	var finishTime = currTimeSeconds() + 10;	
 	
 	if( cnt > 0 )
 	{
