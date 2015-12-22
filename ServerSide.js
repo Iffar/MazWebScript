@@ -343,7 +343,7 @@ handlers.CheckProgress = function ( args )
 	
 	// Check mine progress
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
-	balance = playerInventory.virtualCurrency;	
+	balance = playerInventory.VirtualCurrency;	
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
