@@ -578,18 +578,16 @@ handlers.Mine = function (args)
 	// Get Building Instance
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
 	var buildingInstance;
-	var test = "";
 	for(i = 0; i < playerInventory.Inventory.length; i++)
 	{
-		test += playerInventory.Inventory[i].ItemInstanceID +"=="+ buildingInstanceID+"|";
-		if(playerInventory.Inventory[i].ItemInstanceID == buildingInstanceID)
+		if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
 		{
 			buildingInstance = playerInventory.Inventory[i];
 			break;
 		}
 	}		
 	if( typeof buildingInstance == 'undefined' )
-		return { error : test+"You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
+		return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
 	
 	// Check storage
