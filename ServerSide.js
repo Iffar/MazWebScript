@@ -642,7 +642,7 @@ handlers.Mine = function (args)
 	// 		[BuildingInstanceID] : [finish],[amount],[material] - [finish],[amount],[material] - [finish],[amount],[material] |
 	
 	
-	return { msg : log, ItemInstanceID: itemInstanceID, UserDataMine: data, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg : log, UserDataMine: data, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
