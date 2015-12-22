@@ -393,7 +393,7 @@ handlers.CheckProgress = function ( args )
 				},
 		});		
 	}
-	return { UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg: "haha", UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
