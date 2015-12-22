@@ -323,8 +323,6 @@ handlers.CheckProgress = function ( args )
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct"]}).Data;  // ADD more!
 	var needUpdate = false;	
 	
-	var balance = userData.VirtualCurrency;
-	
 	// Check construction progresses
 	var construct = ((typeof userData.Construct != 'undefined') && (typeof userData.Construct.Value != 'undefined') && userData.Construct.Value != "") ? userData.Construct.Value.split('|') : "";
 	for( i = 0; i < construct.length; i++)
@@ -344,6 +342,8 @@ handlers.CheckProgress = function ( args )
 	
 	
 	// Check mine progress
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
+	balance = playerInventory.virtualCurrency;	
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
@@ -362,8 +362,8 @@ handlers.CheckProgress = function ( args )
 			
 				// Check if the progress finished
 				if(info [0] <= currTimeSeconds())
-				{
-					//balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) });
+				{									
+					balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) });
 					progresses.splice(j, 1);
 					needUpdate = true;
 				}					
