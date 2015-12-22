@@ -369,6 +369,9 @@ handlers.CheckProgress = function ( args )
 				}					
 			}
 			mine[i] = buildingInstanceID +":"+progresses.join('-');
+			
+			if( progresses.length == 0)
+				mine.splice(i, 1);			
 		}
 	}		
 	
@@ -658,8 +661,11 @@ handlers.Mine = function (args)
 	
 	if( cnt > 0 )
 	{
-		var buildingData = mineProgresses[cnt].split(":");			
+		var buildingData = mineProgresses[cnt].split(":");	
+		if(buildingData[1] != "" )
+			buildingData[1] += "-";
 		buildingData[1] += finishTime+","+pieces+","+buildingInstance.CustomData.Material;
+		
 		mineProgresses[cnt] = buildingData.join(":");
 		data = mineProgresses.join('|');
 	}
