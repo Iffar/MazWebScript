@@ -323,6 +323,8 @@ handlers.CheckProgress = function ( args )
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct"]}).Data;  // ADD more!
 	var needUpdate = false;	
 	
+	var balance = userData.VirtualCurrency;
+	
 	// Check construction progresses
 	var construct = ((typeof userData.Construct != 'undefined') && (typeof userData.Construct.Value != 'undefined') && userData.Construct.Value != "") ? userData.Construct.Value.split('|') : "";
 	for( i = 0; i < construct.length; i++)
@@ -338,14 +340,48 @@ handlers.CheckProgress = function ( args )
 			}				
 		}
 	}		
-	
-	
 	var constructString = (construct != "" ) ? construct.join("|") : ""; 
-		
+	
+	
+	
 	// Check mine progress
-	 // Check storage size in the userdata
+	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
+	for( i = 0; i < mine.length; i++)
+	{
+		if(mine[i] != "")
+		{
+			var buildingInfo =  mine[i].split (':');
+			var buildingInstanceID = buildingInfo [0];
+			
+			// Deserialize the building queue, and iterate through them
+			var progresses = buildingInfo [1].split ('-');		
+			for( j = 0; j < progresses.length; j++)
+			{
+				// If this progress is empty continue the cycle.
+				if (progresses[j] == "") continue;
+				var info = progresses[j].split (',');
+			
+				// Check if the progress finished
+				if(info [0] <= currTimeSeconds())
+				{
+					balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) });
+					progresses.splice(j, 1);
+					needUpdate = true;
+				}					
+			}
+			mine[i] = buildingInstanceID +":"+progresses.join('-');
+		}
+	}		
+	
+	// Check storage size in the userdata
+	
+	
+	var mineString = (mine != "" ) ? mine.join("|") : ""; 
+	
+	
 	
 	// Check craft progress		
+	var craftString = "";
 	
 	if( needUpdate )
 	{
@@ -353,11 +389,13 @@ handlers.CheckProgress = function ( args )
 		server.UpdateUserData({
 			PlayFabId: currentPlayerId,
 			Data: {
-				Construct : constructString
+				Construct : constructString,
+				Mine : mineString,
+				Craft: craftString				
 				},
 		});		
 	}
-	return { UserDataConstruct: constructString, serverTime: currTimeSeconds() };
+	return { UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
