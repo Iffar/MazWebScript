@@ -379,7 +379,7 @@ handlers.CheckProgress = function ( args )
 	
 	
 	// Check craft progress		
-	var craftString = "Haló";
+	var craftString = "";
 	
 	if( needUpdate )
 	{
@@ -393,7 +393,7 @@ handlers.CheckProgress = function ( args )
 				},
 		});		
 	}
-	return { msg: "haha", UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, Balance: balance, serverTime: currTimeSeconds() };
+	return { Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
 
 
