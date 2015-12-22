@@ -363,7 +363,7 @@ handlers.CheckProgress = function ( args )
 				// Check if the progress finished
 				if(info [0] <= currTimeSeconds())
 				{									
-					balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) });
+					balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) }).Balance;
 					progresses.splice(j, 1);
 					needUpdate = true;
 				}					
