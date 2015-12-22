@@ -604,7 +604,7 @@ handlers.Mine = function (args)
 			cnt = i;
 			var slots = buildingData[1].split("-");			
 			if( slots.length > parseInt(buildingInstance.CustomData.Upgrade / 10)+3)
-				return { error : "You don't have free slot to make this material!", serverTime: currTimeSeconds()  }; 		
+				return { error : "You don't have free slot to make this material!", serverTime: currTimeSeconds()  }; 
 		}		
 	}	
 	
@@ -618,12 +618,18 @@ handlers.Mine = function (args)
 	// Buy the material	
 	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
-	var buildingData = mineProgresses[cnt].split(":");	
+	var data = "";
 	var finishTime = currTimeSeconds() + 60;	
-	buildingData[1] += finishTime+","+pieces+","+buildingInstance.CustomData.Material;
-	mineProgresses[cnt] = buildingData.join(":");
 	
-	var data = mineProgresses.join('|');
+	if( cnt > 0 )
+	{
+		var buildingData = mineProgresses[cnt].split(":");			
+		buildingData[1] += finishTime+","+pieces+","+buildingInstance.CustomData.Material;
+		mineProgresses[cnt] = buildingData.join(":");
+		data = mineProgresses.join('|');
+	}
+	else
+		data = buildingInstanceID+":"+finishTime+","+pieces+","+buildingInstance.CustomData.Material;
 	
 	server.UpdateUserData({			
 		PlayFabId: currentPlayerId,
