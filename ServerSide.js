@@ -657,20 +657,25 @@ handlers.Mine = function (args)
 	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
 	var data = "";
-	var finishTime = currTimeSeconds() + 10;	
+	var finishTime = 10;	
 	
 	if( cnt >= 0 )
 	{
 		var buildingData = mineProgresses[cnt].split(":");	
 		if(buildingData[1] != "" )
-			buildingData[1] += "-";
-		buildingData[1] += finishTime+","+pieces+","+buildingInstance.CustomData.Material;
-		
+		{
+			var progresses = buildingData[1].split("-");
+			var last = progresses[progresses.length-1].split(",");						
+			finishTime += parseFloat(last[0]);
+			progresses[progresses.length] = finishTime+","+pieces+","+buildingInstance.CustomData.Material;
+			
+			buildingData[1] = progresses.join("-");
+		}			
 		mineProgresses[cnt] = buildingData.join(":");
 		data = mineProgresses.join('|');
 	}
 	else
-		data = buildingInstanceID+":"+finishTime+","+pieces+","+buildingInstance.CustomData.Material;
+		data = buildingInstanceID+":"+(parseFloat(finishTime)+currTimeSeconds())+","+pieces+","+buildingInstance.CustomData.Material;
 	
 	server.UpdateUserData({			
 		PlayFabId: currentPlayerId,
