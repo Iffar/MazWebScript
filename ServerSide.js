@@ -638,11 +638,11 @@ handlers.Mine = function (args)
 	{
 		var buildingData = mineProgresses[i].split(":");
 		if( buildingData[0] == buildingInstanceID )
-		{
-			cnt = i;
+		{			
 			var slots = buildingData[1].split("-");			
-			if( slots.length > parseInt(buildingInstance.CustomData.Upgrade / 10)+3)
+			if( slots.length >= parseInt(buildingInstance.CustomData.Upgrade / 10)+3)
 				return { error : "You don't have free slot to make this material!", serverTime: currTimeSeconds()  }; 
+			cnt = i;
 		}		
 	}	
 	
@@ -659,7 +659,7 @@ handlers.Mine = function (args)
 	var data = "";
 	var finishTime = currTimeSeconds() + 10;	
 	
-	if( cnt > 0 )
+	if( cnt >= 0 )
 	{
 		var buildingData = mineProgresses[cnt].split(":");	
 		if(buildingData[1] != "" )
