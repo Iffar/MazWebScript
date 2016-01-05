@@ -598,8 +598,9 @@ handlers.Mine = function (args)
 	// Get UserData
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
 	
-	// Get the building data from the catalog
-	var item;
+	// Get the building data from the catalog -
+/**	Szerintem nem kell....**/
+	/*var item;
 	var itemList = server.GetCatalogItems({ CatalogVersion: "Buildings" }).Catalog;
 	for(i = 0; i < itemList.length; i++)
 	{
@@ -611,7 +612,7 @@ handlers.Mine = function (args)
 	}	
 	// If there is no such item in the catalog, throw an error.
 	if( typeof item == 'undefined' )
-		return { error : "Can't find item ("+itemID+") in the Buildings catalog!", serverTime: currTimeSeconds()  }; 
+		return { error : "Can't find item ("+itemID+") in the Buildings catalog!", serverTime: currTimeSeconds()  }; */
 				
 	// Get Building Instance
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
@@ -691,188 +692,124 @@ handlers.Mine = function (args)
 	return { msg : log, UserDataMine: data, Balance: balance, serverTime: currTimeSeconds() };
 }
 
-
-
-
-
-
-
-
-/* This function start to mine a resources.
- * The function needs two parameter: BuildingInstanceID and CatalogVersion
- * The function first get the building from the inventory, then check if it's not null and it's a mine type.
- * After then, determines the mine parameters (what currency does it mine, how much does it time and how fast, also how much gold does it cost.
- * Next step is subtracting the players gold, if it has enough.
- * Last the function checks if the building already mining or not, and it will increase the mine amount or add the mining progress to the list.
- * 
- * The function returns the gold balance.
+/* This function starts the craft progress.
+ *  Parameters: BuildingInstanceID, ItemID, ItemCatalog
+ *  
  */
-handlers.startMine = function(args)	
+handlers.Craft = function (args)
 {
-	var log = "";
-
-	var buildingInstanceID = args.BuildingInstanceID; 				// This is the building instance ID
-	var catalogVersion = args.CatalogVersion;		// Mostly this is "Buildings"	
-		
-	// Query items form the given catalog
-	var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: catalogVersion });
-	var itemList = inventory.Inventory;
-	
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Mine", "Construct"]}).Data;
-	
-	// Check if the building is under construction.
-	var data = ((typeof userData.Construct != 'undefined') && (typeof userData.Construct.Value != 'undefined') && userData.Construct.Value != "") ? userData.Construct.Value.split('|') : "";
-	for( i = 0; i < data.length; i++)
-	{
-		if(data[i] != "")
-		{
-			var progress = data[i].split(':');
-			if(progress[0] == buildingInstanceID)
-				return { error : "This building is currently under construction!"  };  
-		}
-	}
-	
-	// Find item from the list
-	var item;
-	for(i = 0; i < itemList.length; i++)
-	{
-		if(itemList[i].ItemInstanceId == buildingInstanceID)
-		{
-			item = itemList[i];
-			break;
-		}
-	}
-	
-	// If there is no such item in the catalog, throw an error.
-	if( typeof item == 'undefined' )
-		return { error : "Can't find item ("+itemID+") in the inventory ("+catalogVersion+")!"  }; 
-	
-	if( item.ItemClass != "Mine")
-		return { error : "The "+item.ItemId+" is not a mine!" }; 
-	
-	var virtualCurrency = item.CustomData.Currency;
-	var creationAmount = item.CustomData.CreationAmount;
-	var creationTime = item.CustomData.CreationTime;
-	var goldCost = item.CustomData.CreationCost;
-	
-	// Spend Gold if possible.
-	if(goldCost > 0)
-	{
-		var currency = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost });
-		if(currency.Balance < 0)
-		{
-			server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost });
-			return { error : "Not enough "+currency.VirtualCurrency +"!" };
-		}	
-	}
-	else
-		var currency = { Balance : inventory.VirtualCurrency.GC };
-	
-	// Get user data, mine progresses
-	var data = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : [];
-	
-	for( i = 0; i < data.length; i++)
-	{
-		if(data[i] != "")
-		{
-			var progress = data[i].split(','); 
-			if(progress[0] == buildingInstanceID)
-			{
-				progress[3] = parseInt(progress[3]) + creationAmount;
-				data[i] = progress.join(",");	
-				
-				server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: {Mine : data.join("|")},
-					});
-				
-				return { msg : log, Balance: { GC: currency.Balance}, Parameter:  progress[3]};
-			}					
-		}
-	}	
-	// 0: Building  -  1: finish time  -  2: amount  -  3: finish time  -  4: amount unit  -  5: currency
-	data[data.length] = buildingInstanceID+","+(currTimeSeconds()+creationTime)+","+creationAmount+","+creationTime+","+creationAmount+","+virtualCurrency;
-	server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: {Mine : data.join("|")},
-					});
-	
-	return { msg : log, Balance: { GC: currency.Balance}, Parameter: creationAmount};
-}
-
-
-handlers.checkMiningProgress = function(args)
-{
-	var buildingInstanceID = args.BuildingInstanceID;
-
-	// Get the Construct custom user data, and explode it into an array.
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Mine"]}).Data;
-	var data = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
-	for( i = 0; i < data.length; i++)
-	{
-		if(data[i] != "")
-		{
-			var progress = data[i].split(',');
-			// If this is the mine we searching for.
-			if(progress[0] == buildingInstanceID)
-			{		
-				// If it's almost ready.
-				if(progress[1] <= currTimeSeconds() - 2)
-				{
-					var finished = true;
-					if(progress[2] == progress[4])
-						data.splice(i, 1)
-					else
-					{						
-						progress[2] = progress[2] - progress[4];
-						progress[1] = currTimeSeconds() + progress[3];
-						data[i] = progress.join(",");
-						finished = false;
-					}
-									
-					server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: { Mine : data.join("|") },
-					});
-					
-					var currency = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: progress[5], Amount: progress[4] });
-					
-					var balance = {};
-					balance[progress[5]] = currency.Balance;
-					
-					if(finished)
-						return { BuildingInstanceID : buildingInstanceID,  status : "Finished",	  Parameter: balance };
-					else
-						return { BuildingInstanceID : buildingInstanceID,  status : "In progress", TimeBack : progress[1] - currTimeSeconds(), Amount : progress[2] };
-				}
-				else
-					return { BuildingInstanceID : buildingInstanceID,  status : "In progress", TimeBack : progress[1] - currTimeSeconds(), Amount : progress[2] };
-			}			
-		}
-	}		
-	return { error : "There is no craft progress for " + buildingInstanceID };	
-}
-
-
-/******************************************************** CRAFT ************************************************************************/
-
-
-/*
- */
-handlers.startCraft = function(args)	
-{
-	var currentTime = currTimeSeconds();
-	
 	var log = "";
 	
 	var itemID = args.ItemID;										// This is the item that will be crafted.
 	var itemCatalog = args.ItemCatalog;								// The catalag of the item
 	var buildingInstanceID = args.BuildingInstanceID; 				// This is the building instance ID, this building crafts the item.
-	var buildingCatalog = args.BuildingCatalog;						// Mostly this is "Buildings"	
+	
+	if( typeof buildingInstanceID == 'undefined' || buildingInstanceID == "")
+		return { error : "Error: only a constructed building can mine!", serverTime: currTimeSeconds()  }; 
+	
+	// Get UserData
+	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
+	
+	// Get the card
+	var catalog = server.GetCatalogItems({ CatalogVersion: itemCatalog }).Catalog;
+	
+	// Find item from the list
+	var item;
+	for(i = 0; i < catalog.length; i++)
+	{
+		if(catalog[i].ItemId == itemID)
+		{
+			item = catalog[i];
+			break;
+		}
+	}	
+	// If the item doesn't exists in this catalog
+	if( typeof item == 'undefined' )
+		return { error : "Can't find item ("+itemID+") in the inventory ("+itemCatalog+")!"  }; 
+	
+	
+	// Get Building Instance
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
+	var buildingInstance;
+	for(i = 0; i < playerInventory.Inventory.length; i++)
+	{
+		if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
+		{
+			buildingInstance = playerInventory.Inventory[i];
+			break;
+		}
+	}		
+	if( typeof buildingInstance == 'undefined' )
+		return { error : "You don't own this item ("+itemID+")!", serverTime: currTimeSeconds()  }; 
+	
+	
+	// Check for free crafting slots	
+	var cnt = -1;
+	var craftProgresses = ( typeof userData.Craft != 'undefined' && typeof userData.Craft.Value != 'undefined' ) ? userData.Craft.Value.split('|') : "";
+	for(i = 0; i < craftProgresses.length; i++)
+	{
+		var buildingData = craftProgresses[i].split(":");
+		if( buildingData[0] == buildingInstanceID )
+		{			
+			var slots = buildingData[1].split("-");			
+			if( slots.length >= parseInt(buildingInstance.CustomData.Upgrade / 10)+3)
+				return { error : "You don't have free slot to make this card!", serverTime: currTimeSeconds()  }; 
+			cnt = i;
+		}		
+	}	
+	
+	// Check prices
+	var balance = playerInventory.VirtualCurrency;
+	var pieces = parseInt(buildingInstance.CustomData.Upgrade)+1;
+	var price = pieces * parseInt(buildingInstance.CustomData.Price);
+	if(balance.GC < price)
+		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
+	
+	// Buy the material	
+	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
+	
+	var data = "";
+	var finishTime = parseFloat(item.VirtualCurrencyPrices.T);	
+	
+	if( cnt >= 0 )
+	{
+		var buildingData = craftProgresses[cnt].split(":");	
+		if(buildingData[1] != "" )
+		{
+			var progresses = buildingData[1].split("-");
+			var last = progresses[progresses.length-1].split(",");						
+			finishTime += parseFloat(last[0]);
+			progresses[progresses.length] = finishTime+","+pieces+","+itemID;
+			
+			buildingData[1] = progresses.join("-");
+		}			
+		craftProgresses[cnt] = buildingData.join(":");
+		data = craftProgresses.join('|');
+	}
+	else
+		data = buildingInstanceID+":"+(parseFloat(finishTime)+currTimeSeconds())+","+pieces+","+itemID;
+	
+	server.UpdateUserData({			
+		PlayFabId: currentPlayerId,
+		Data: {Craft : data},
+	});
+	
+	
+	// CRAFT DATA: 
+	//		[BuildingInstanceID] : [finish],[amount],[itemID] - [finish],[amount],[itemID] - [finish],[amount],[itemID] |
+	// 		[BuildingInstanceID] : [finish],[amount],[itemID] - [finish],[amount],[itemID] - [finish],[amount],[itemID] |
+		
+	return { msg : log, UserDataCraft: data, Balance: balance, serverTime: currTimeSeconds() };
+}
 
+
+
+/*
+handlers.startCraft = function(args)	
+{
 	
 	
-/** GET THE BUILDING **/
+/** GET THE BUILDING **//*
 	var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: buildingCatalog });
 	var buildings = inventory.Inventory;
 	
@@ -913,7 +850,7 @@ handlers.startCraft = function(args)
 		return { error : "This building ("+building.ItemId+") can't craft item from this catalog ("+itemCatalog+")" }; 
 
 	
-/** GET THE ITEM **/
+/** GET THE ITEM **//*
 	var catalog = server.GetCatalogItems({ CatalogVersion: itemCatalog }).Catalog;
 	
 	// Find item from the list
@@ -996,7 +933,7 @@ handlers.startCraft = function(args)
 	}
 		
 	return { msg : log, Balance: currencyBalances, Parameter: queue, ServerWork: currTimeSeconds() - currentTime };
-}
+}*/
 
 // 0 - BuildingInstanceID, 1 - currentItem, 2 - catalogVersion, 3 - finishTime, 4 - queue [ 0 - itemID : 1 - catalog : 2 - craftTime (;)]
 handlers.checkCraftProgress = function(args)
