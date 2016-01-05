@@ -343,7 +343,7 @@ handlers.CheckProgress = function ( args )
 	
 	// Check mine progress
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
-	balance = playerInventory.VirtualCurrency;	
+	balance = playerInventory.VirtualCurrency;		
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
@@ -375,13 +375,49 @@ handlers.CheckProgress = function ( args )
 		}
 	}		
 	
-	// Check storage size in the userdata
-		
+	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
 	
 	
-	// Check craft progress		
-	var craftString = "";
+		
+	// Check craft progress
+	var craft = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : "";
+	for( i = 0; i < craft.length; i++)
+	{
+		if(craft[i] != "")
+		{
+			var buildingInfo =  craft[i].split (':');
+			var buildingInstanceID = buildingInfo [0];
+			
+			// Deserialize the building queue, and iterate through them
+			var progresses = buildingInfo [1].split ('-');		
+			for( j = 0; j < progresses.length; j++)
+			{
+				// If this progress is empty continue the cycle.
+				if (progresses[j] == "") continue;
+				var info = progresses[j].split (',');
+			
+				// Check if the progress finished
+				if(info [0] <= currTimeSeconds())
+				{					
+					items = [];
+					items[items.length] = info[2]; 					
+					serve.GrantItemsToUser({ PlayFabId: currentPlayerId, ItemIds: items });
+					
+					progresses.splice(j, 1);
+					needUpdate = true;
+				}					
+			}
+			craft[i] = buildingInstanceID +":"+progresses.join('-');
+			
+			if( progresses.length == 0)
+				craft.splice(i, 1);			
+		}
+	}		
+	var craftString = (craft != "" ) ? craft.join("|") : ""; 
+	
+	
+	
 	
 	if( needUpdate )
 	{
