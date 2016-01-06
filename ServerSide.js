@@ -797,7 +797,7 @@ handlers.Craft = function (args)
 	// Check prices
 	var balance = playerInventory.VirtualCurrency;
 	var pieces = parseInt(buildingInstance.CustomData.Upgrade)+1;
-	var price = pieces * parseInt(buildingInstance.CustomData.Price);
+	var price = pieces * parseInt(item.VirtualCurrencyPrices.GC);
 	if(balance.GC < price)
 		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
 	
