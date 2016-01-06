@@ -402,7 +402,7 @@ handlers.CheckProgress = function ( args )
 				{					
 					items = [];
 					items[items.length] = info[2]; 					
-					serve.GrantItemsToUser({ PlayFabId: currentPlayerId, ItemIds: items });
+					server.GrantItemsToUser({ PlayFabId: currentPlayerId, ItemIds: items });
 					
 					progresses.splice(j, 1);
 					needUpdate = true;
