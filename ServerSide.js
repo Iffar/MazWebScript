@@ -802,7 +802,8 @@ handlers.Craft = function (args)
 		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
 	
 	// Buy the material	
-	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
+	if( price > 0)
+		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
 	var data = "";
 	var finishTime = parseFloat(item.VirtualCurrencyPrices.T);	
@@ -836,6 +837,77 @@ handlers.Craft = function (args)
 	// 		[BuildingInstanceID] : [finish],[amount],[itemID] - [finish],[amount],[itemID] - [finish],[amount],[itemID] |
 		
 	return { msg : log, UserDataCraft: data, Balance: balance, serverTime: currTimeSeconds() };
+}
+
+
+
+
+
+/* This function buys a character and grant it to the user.
+ *  Parameters: ItemID  
+ */
+handlers.BuyCharacter = function (args)
+{
+	var log = "";
+	
+	var itemID = args.ItemID;
+	
+	// Get the card
+	var catalog = server.GetCatalogItems({ CatalogVersion: "Characters" }).Catalog;
+	
+	// Find item from the list
+	var item;
+	for(i = 0; i < catalog.length; i++)
+	{
+		if(catalog[i].ItemId == itemID)
+		{
+			item = catalog[i];
+			break;
+		}
+	}	
+	// If the item doesn't exists in this catalog
+	if( typeof item == 'undefined' )
+		return { error : "Can't find item ("+itemID+") in the catalog ("+itemCatalog+")!"  }; 
+	
+	
+	// Get Building Instance
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Characters" });	
+		
+	// Check prices
+	var balance = playerInventory.VirtualCurrency;
+	var price = item.VirtualCurrencyPrices.GC;
+	if(balance.GC < price)
+		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
+	
+	// Buy the character
+	if( price > 0)
+		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
+	
+	var data = "";
+
+	var itemsToGrant = [itemID];
+	var grantResult = server.GrantItemsToUser({
+						PlayFabId: currentPlayerId,
+						CatalogVersion: "Characters",
+						ItemIds: itemsToGrant,
+						Annotation: "Crafted.",
+					}).ItemGrantResults;
+				
+	// Granting the item failed
+	if(!grantResult[0].Result)
+		return { error : "Failed to grant the item ("+itemsToGrant+") to the user." + log};		
+		
+	for(cnt = 0; cnt < grantResult.length; cnt++)
+	{
+		// Grant character to user
+		grantResult[cnt].ItemInstanceId = server.GrantCharacterToUser({
+								PlayFabId: currentPlayerId,
+								CharacterName: grantResult[cnt].DisplayName,
+								CharacterType: grantResult[cnt].ItemId,
+						}).CharacterId;
+	}	
+		
+	return { msg : log, GrantedCharacter: grantResult, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
