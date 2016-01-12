@@ -907,7 +907,7 @@ handlers.BuyCharacter = function (args)
 						}).CharacterId;
 	}	
 		
-	return { msg : log, GrantedCharacter: grantResult, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg : log, GrantedCharacterID: grantResult[0].ItemId, GrantedCharacterInstanceID: grantResult[0].ItemInstanceId, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 
