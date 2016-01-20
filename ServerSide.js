@@ -159,25 +159,9 @@ handlers.getTargetPlayerData = function(args)
 handlers.sellItem = function(args)
 {
 	var itemID = args.ItemID;
+	var itemInstanceID = args.ItemInstanceID;
 	var catalogVersion = args.CatalogVersion;
-	
-	// Get this item from the inventory
-	var inventory = server.GetUserInventory({
-					PlayFabId: currentPlayerId,
-					CatalogVersion: catalogVersion,
-					});
-					
-	// Get item instance id
-	var itemInstanceID = "";
-	for( i = 0; i < inventory.Inventory.length; i++)
-	{
-		if(inventory.Inventory[i].ItemId == itemID)
-			itemInstanceID = inventory.Inventory[i].ItemInstanceId;
-	}
-	
-	if (itemInstanceID == "")
-		return { Error: "You don't own the item you want to sell!", serverTime: currTimeSeconds() };
-	
+		
 	// Get item from the catalog
 	var catalog = server.GetCatalogItems({ CatalogVersion : catalogVersion}).Catalog;
 	var item;
@@ -194,8 +178,10 @@ handlers.sellItem = function(args)
 				Amount: item.VirtualCurrencyPrices.GC
 	});
 	
+	// remove one stack
 	server.ModifyItemUses({ PlayFabId: currentPlayerId, ItemInstanceId: itemInstanceID, UsesToAdd: -1 });
 	
+	// query the inventory
 	var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
 	
 	return {  Inventory : inventory.Inventory, Currency: inventory.VirtualCurrency, Error : "", serverTime: currTimeSeconds() };
@@ -912,263 +898,6 @@ handlers.BuyCharacter = function (args)
 
 
 
-/*
-handlers.startCraft = function(args)	
-{
-	
-	
-/** GET THE BUILDING **//*
-	var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: buildingCatalog });
-	var buildings = inventory.Inventory;
-	
-	// Find the building
-	var building;
-	for(i = 0; i < buildings.length; i++)
-	{
-		if(buildings[i].ItemInstanceId == buildingInstanceID)
-		{
-			building = buildings[i];
-			break;
-		}
-	}
-	
-	// If the building doesn't exists in this catalog
-	if( typeof building == 'undefined' )
-		return { error : "Can't find item ("+building.ItemId+") in the inventory ("+buildingCatalog+")!"  }; 
-		
-	if( building.ItemClass != "CraftStation")
-		return { error : "The "+building.ItemId+" is not a craft station!" }; 
-		
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Craft"]}).Data;
-		
-	// Check if the building is under construction.
-	var data = ((typeof userData.Construct != 'undefined') && (typeof userData.Construct.Value != 'undefined') && userData.Construct.Value != "") ? userData.Construct.Value.split('|') : "";
-	for( i = 0; i < data.length; i++)
-	{
-		if(data[i] != "")
-		{
-			var progress = data[i].split(':');
-			if(progress[0] == buildingInstanceID)
-				return { error : "This building is currently under construction!"  };  
-		}
-	}	
-		
-	// Check if the building can craft an item from the catalog
-	if(building.CustomData.Catalog  != itemCatalog)
-		return { error : "This building ("+building.ItemId+") can't craft item from this catalog ("+itemCatalog+")" }; 
-
-	
-/** GET THE ITEM **//*
-	var catalog = server.GetCatalogItems({ CatalogVersion: itemCatalog }).Catalog;
-	
-	// Find item from the list
-	var item;
-	for(i = 0; i < catalog.length; i++)
-	{
-		if(catalog[i].ItemId == itemID)
-		{
-			item = catalog[i];
-			break;
-		}
-	}
-	
-	// If the item doesn't exists in this catalog
-	if( typeof item == 'undefined' )
-		return { error : "Can't find item ("+itemID+") in the inventory ("+itemCatalog+")!"  }; 
-	
-	
-	var creationAmount = building.CustomData.CreationAmount;
-	
-	// try to subtract the currency
-	var currencies = [];
-	var currencyBalances = {};
-	for (x in item.VirtualCurrencyPrices) 
-	{
-		if( x != "T" && item.VirtualCurrencyPrices[x] > 0)
-		{
-			var currency = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: x, Amount: item.VirtualCurrencyPrices[x]});
-			currencies[currencies.length] = x;
-			currencyBalances[x] = currency.Balance;
-			
-			// If there aren't enough, throw an error.
-			if(currency.Balance < 0)
-			{
-				for( cnt = 0; cnt < currencies.length; cnt++)
-				{
-					server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: currencies[cnt], Amount: item.VirtualCurrencyPrices[currencies[cnt]] });
-				}
-				return { error : "Not enough "+currency.VirtualCurrency +"!" };
-			}			
-		}
-	}
-	
-	// update player data
-	var craft = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : [];
-	var hasCraftProgress = false;
-	var queue = "";
-	for( i = 0; i < craft.length; i++)
-	{
-		if(craft[i] != "")
-		{
-			var info = craft[i].split(','); 
-			
-			// If the building already has a craft progress
-			if(info[0] == buildingInstanceID)
-			{
-				hasCraftProgress = true;
-				
-				if(info[4] != "")
-					info[4] += ";";
-				info[4] += itemID +":"+itemCatalog+":"+item.VirtualCurrencyPrices.T;
-				queue = info[4];
-				
-				craft[i] = info.join(',');
-				server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: { Craft : craft.join("|") },
-					});				
-			}
-		}
-	}
-	
-	if(!hasCraftProgress)
-	{
-		craft[craft.length] = buildingInstanceID+","+itemID+","+itemCatalog+","+(item.VirtualCurrencyPrices.T + currentTime)+",";
-		server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: { Craft : craft.join("|") },
-					});
-	}
-		
-	return { msg : log, Balance: currencyBalances, Parameter: queue, ServerWork: currTimeSeconds() - currentTime };
-}*/
-
-// 0 - BuildingInstanceID, 1 - currentItem, 2 - catalogVersion, 3 - finishTime, 4 - queue [ 0 - itemID : 1 - catalog : 2 - craftTime (;)]
-handlers.checkCraftProgress = function(args)
-{
-	var log = "";
-	var buildingInstanceID = args.BuildingInstanceID;
-
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Craft"]}).Data;
-	var data = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : "";
-	
-	var currentCatalog;
-	
-	for( i = 0; i < data.length; i++)
-	{
-		if(data[i] != "")
-		{
-			var progress = data[i].split(',');
-			
-			// If this is the mine we searching for.
-			if(progress[0] == buildingInstanceID)
-			{				
-				var done = false;
-				var currentItem = progress[1];
-				currentCatalog = progress[2];
-				var currentFinishTime = progress[3];
-				
-				var queue = (progress[4] == "") ? [] : progress[4].split(';');
-				
-				var itemsToGrant = [];
-				
-				while(!done)
-				{		
-					// check if the current craft finished or not.				
-					if(currentFinishTime <= currTimeSeconds() + 2)
-					{
-						// Add the item to the list that will be granted to the player.
-						itemsToGrant[itemsToGrant.length] = currentItem; 
-						currentItem = "";
-						
-						log += "Queue: " + queue.length + "\n";
-												
-						// If there is no queue, exit from this loop
-						if(queue.length == 0)					
-							done = true;								
-						
-						// If there is a queue add the next item to the craft
-						else
-						{
-							var next = queue[0].split(':');
-							currentItem = next[0];
-							currentCatalog = next[1];
-							currentFinishTime = currTimeSeconds() + 2 + next[2];
-							queue.splice(0,1);
-						}
-					}
-					
-					// If it's not finished yet, exit from the loop.
-					else
-						done = true;								
-				}
-								
-				// Grant the items to the user	
-				var grantedItems = [];
-				if(itemsToGrant.length > 0)
-				{			
-					var grantResult = server.GrantItemsToUser({
-											PlayFabId: currentPlayerId,
-											CatalogVersion: currentCatalog,
-											ItemIds: itemsToGrant,
-											Annotation: "Crafted.",
-							}).ItemGrantResults;
-						
-					// Granting the item failed
-					if(!grantResult[0].Result)
-						return { error : "Failed to grant the item ("+itemsToGrant+") to the user." + log};		
-						
-					for(cnt = 0; cnt < grantResult.length; cnt++)
-					{
-						if(currentCatalog == "Characters")
-						{
-							// Grant character to user
-							grantResult[cnt].ItemInstanceId = server.GrantCharacterToUser({
-																		PlayFabId: currentPlayerId,
-																		CharacterName: grantResult[cnt].ItemId,
-																		CharacterType: grantResult[cnt].ItemId,
-																	}).CharacterId;
-						}						
-						grantedItems[grantedItems.length] = { ItemId: grantResult[cnt].ItemId, ItemInstanceId: grantResult[cnt].ItemInstanceId, CatalogVersion: currentCatalog };
-						
-					}
-				}
-				
-				// Update the craft custom data
-				if(queue.length == 0 && currentItem == "" )
-					data.splice(i, 1);				
-				else
-				{
-					progress[1] = currentItem;
-					progress[2] = currentCatalog;
-					progress[3] = currentFinishTime;
-					progress[4] = queue.join(';');
-					data[i] = progress.join(',');					
-				}					
-				
-				server.UpdateUserData({
-						PlayFabId: currentPlayerId,
-						Data: { Craft : data.join("|") },
-					});
-				
-			
-				if(queue.length == 0 && currentItem == "" )
-					return {msg : log, BuildingInstanceID : buildingInstanceID,  status : "Finished", Parameter: grantedItems };
-				else
-					return {msg : log, BuildingInstanceID : buildingInstanceID,  status : "In progress", ItemID : progress[1], TimeBack : progress[3] - currTimeSeconds(), Queue: progress[4], Parameter: grantedItems};
-			}			
-		}
-	}		
-	return { error : "There is no craft progress for " + buildingInstanceID };	
-}
-
-
-
-
-
-
-
-
 
 
 // query all the player characters and send back to the client
@@ -1187,41 +916,6 @@ handlers.getItems = function(args)
 	}	
 	return { itemlist : items };	
 }
-
-
-
-
-/*
-handlers.buyItem = function(args)
-{
-	var items = [args.ItemID];
-
-	var itemList = server.GetCatalogItems().Catalog;
-	var value = 0;
-	
-	for(i = 0; i<itemList.length; i++)
-	{
-		if(itemList[i].ItemId == args.ItemID)
-			value = itemList[i].VirtualCurrencyPrices.GC;
-	}
-	
-	server.GrantItemsToUser({
-			PlayFabId: currentPlayerId,
-			ItemIds: items
-	});
-	
-	server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: value});
-		
-	var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });	
-	return {  Inventory : inventory.Inventory, Currency: inventory.VirtualCurrency };
-}*/
-
-
-
-
-
-
-
 
 
 
