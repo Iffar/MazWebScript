@@ -343,7 +343,12 @@ handlers.CheckProgress = function ( args )
 			for( j = 0; j < progresses.length; j++)
 			{
 				// If this progress is empty continue the cycle.
-				if (progresses[j] == "") continue;
+				if (progresses[j] == "") 
+				{
+					progresses.splice(j, 1);			
+					continue;
+				}
+				
 				var info = progresses[j].split (',');
 			
 				// Check if the progress finished
@@ -366,16 +371,16 @@ handlers.CheckProgress = function ( args )
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 					
-					if( storedMaterials + parseInt(info[1]) > storage )
-						continue;	
-					
-					// Update the buildings storage
-					buildingInstance.CustomData.StoredMaterial = storedMaterials + parseInt(info[1]); 
-					server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
-			
-					balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) }).Balance;
-					progresses.splice(j, 1);
-					needUpdate = true;
+					if( storedMaterials + parseInt(info[1]) <= storage )
+					{
+						// Update the buildings storage
+						buildingInstance.CustomData.StoredMaterial = storedMaterials + parseInt(info[1]); 
+						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
+				
+						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) }).Balance;
+						progresses.splice(j, 1);
+						needUpdate = true;
+					}						
 				}					
 			}
 			mine[i] = buildingInstanceID +":"+progresses.join('-');
