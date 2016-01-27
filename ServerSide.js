@@ -368,6 +368,7 @@ handlers.CheckProgress = function ( args )
 						return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
 					// Check if there is enough storage
+				
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 					
