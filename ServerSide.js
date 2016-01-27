@@ -368,17 +368,17 @@ handlers.CheckProgress = function ( args )
 						return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
 					// Check if there is enough storage
-				
+					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 					
-					if( storedMaterials + parseInt(info[1]) <= storage )
+					if( storedMaterials + amount <= storage )
 					{
 						// Update the buildings storage
-						buildingInstance.CustomData.StoredMaterial = storedMaterials + parseInt(info[1]); 
+						buildingInstance.CustomData.StoredMaterial = storedMaterials + amount; 
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
 				
-						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: parseInt(info[1]) }).Balance;
+						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
 						progresses.splice(j, 1);
 						needUpdate = true;
 					}						
