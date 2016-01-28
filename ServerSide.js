@@ -326,15 +326,12 @@ handlers.CheckProgress = function ( args )
 		}
 	}		
 	var constructString = (construct != "" ) ? construct.join("|") : ""; 
-	
-	
+		
 	// Check mine progress
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
 	balance = playerInventory.VirtualCurrency;		
 	
-	log += "Mine Progress: "+userData.Mine.Value;
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
-	log+="\n|-- Mine Progress lenght: " + mine.length;
 	for( i = 0; i < mine.length; i++)
 	{
 		log += "\n "+i+". "+mine[i];
@@ -356,31 +353,20 @@ handlers.CheckProgress = function ( args )
 							
 				var info = progresses[j].split (',');
 			
-				log += "\n ->1 "+mine[i];
-			
 				// Check if the progress finished
 				if(info [0] <= currTimeSeconds())
-				{	
-					log += "\n ->2 "+mine[i];
-			
+				{			
 					// Get the building instance
 					var buildingInstance;
 					for(cnt = 0; cnt < playerInventory.Inventory.length; cnt++)
 					{
-						log += "\n ->3/"+cnt+" "+mine[cnt];
 						if(playerInventory.Inventory[cnt].ItemInstanceId == buildingInstanceID)
-						{
-							buildingInstance = playerInventory.Inventory[cnt];
-							log += "\n ->3/"+cnt+"b "+mine[cnt];
-						}						
+							buildingInstance = playerInventory.Inventory[cnt];				
 					}	
-					log += "\n ->4 "+mine[i];
-					
+				
 					if( typeof buildingInstance == 'undefined' )
 						return { msg: log, error : "You don't own this item ("+buildingInstanceID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
-	
-					log += "\n ->5 "+mine[i];
-					
+						
 					// Check if there is enough storage
 					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
