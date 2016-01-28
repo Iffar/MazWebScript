@@ -389,21 +389,20 @@ handlers.CheckProgress = function ( args )
 				
 						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
 						progresses.splice(j, 1);
-						needUpdate = true;
+						needUpdate = true;	
 						
 						log += "\n|--|--|-- removed one at "+j+" => "+progresses.length;						
 					}						
 				}					
-			}
-			
-			
-			mine[i] = buildingInstanceID +":"+progresses.join('-');
-			
-			/*if( progresses.length == 0)
+			}			
+						
+			if( progresses.length == 0)
 				mine.splice(i, 1);	
 			else
-				mine[i] = buildingInstanceID +":"+progresses.join('-');		*/		
+				mine[i] = buildingInstanceID +":"+progresses.join('-');
 		}
+		else
+			mine.splice(i, 1);	
 	}		
 	
 	log+="\n|-- Mine Progress Lenght: " + mine.length;
