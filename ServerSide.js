@@ -381,6 +381,8 @@ handlers.CheckProgress = function ( args )
 					
 					if( storedMaterials + amount <= storage )
 					{
+						log += "\n need update for "+progresses[j];
+						
 						// Update the buildings storage
 						buildingInstance.CustomData.StoredMaterial = storedMaterials + amount; 
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
