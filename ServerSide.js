@@ -348,20 +348,23 @@ handlers.CheckProgress = function ( args )
 			log += "\n|--|-- Progress length: "+progresses.length;			
 			for( j = 0; j < progresses.length; j++)
 			{
+				log += "\n|--|--|-- "+j+". ";	
 				// If this progress is empty continue the cycle.
 				if (progresses[j] == "") 
 				{
-					progresses.splice(j, 1);			
+					progresses.splice(j, 1);	
 					continue;
 				}
 							
 				var info = progresses[j].split (',');
 			
 				// Check if the progress finished
+				log += " check progress finished, ";	
 				if(info [0] <= currTimeSeconds())
 				{		
 					// Get the building instance
 					var buildingInstance;
+					log += " get building instance, ";
 					for(i = 0; i < playerInventory.Inventory.length; i++)
 					{
 						if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
@@ -370,6 +373,7 @@ handlers.CheckProgress = function ( args )
 							break;
 						}
 					}		
+					log += " check if building exists ";
 					if( typeof buildingInstance == 'undefined' )
 						return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
@@ -381,6 +385,7 @@ handlers.CheckProgress = function ( args )
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 				
+					log += " check if enought storage, ";
 					if( storedMaterials + amount <= storage )
 					{
 						// Update the buildings storage
