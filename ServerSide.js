@@ -344,7 +344,8 @@ handlers.CheckProgress = function ( args )
 			var buildingInstanceID = buildingInfo [0];
 			
 			// Deserialize the building queue, and iterate through them
-			var progresses = buildingInfo [1].split ('-');		
+			var progresses = buildingInfo [1].split ('-');	
+			log += "\n Progress length: "+progresses.length;			
 			for( j = 0; j < progresses.length; j++)
 			{
 				// If this progress is empty continue the cycle.
@@ -353,7 +354,7 @@ handlers.CheckProgress = function ( args )
 					progresses.splice(j, 1);			
 					continue;
 				}
-				
+							
 				var info = progresses[j].split (',');
 			
 				// Check if the progress finished
@@ -375,18 +376,13 @@ handlers.CheckProgress = function ( args )
 					// Check if there is enough storage
 					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
-					
-					
+										
 					var storedMaterials = 0
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
-						
-					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
-					
+				
 					if( storedMaterials + amount <= storage )
 					{
-						log += "\n need update for "+progresses[j];
-						
 						// Update the buildings storage
 						buildingInstance.CustomData.StoredMaterial = storedMaterials + amount; 
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
@@ -394,6 +390,7 @@ handlers.CheckProgress = function ( args )
 						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
 						progresses.splice(j, 1);
 						needUpdate = true;
+						log += "\n --removed 1 at "+j+" => "+progresses.length;						
 					}						
 				}					
 			}
