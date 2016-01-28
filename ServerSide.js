@@ -389,13 +389,11 @@ handlers.CheckProgress = function ( args )
 			}			
 			
 			log+="\n|-- Mine Progress Lenght: " + mine.length + " ("+mine[i]+")";
-		
-			mine[i] = buildingInstanceID +":"+progresses.join('-');
 			
-			/*if( progresses.length == 0)
+			if( progresses.length == 0)
 				mine.splice(i, 1);	
 			else
-				mine[i] = buildingInstanceID +":"+progresses.join('-');*/
+				mine[i] = buildingInstanceID +":"+progresses.join('-');
 			
 			log+=" -> " + mine.length + " ("+mine[i]+")";
 		}
