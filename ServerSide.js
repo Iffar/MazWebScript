@@ -400,17 +400,21 @@ handlers.CheckProgress = function ( args )
 					}						
 				}					
 			}			
-						
+			
+			log+="\n|-- Mine Progress Lenght: " + mine.length;
+			
 			if( progresses.length == 0)
 				mine.splice(i, 1);	
 			else
 				mine[i] = buildingInstanceID +":"+progresses.join('-');
+			
+			log+=" -> " + mine.length;
 		}
 		else
 			mine.splice(i, 1);	
 	}		
 	
-	log+="\n|-- Mine Progress Lenght: " + mine.length;
+	log+=" -> " + mine.length;
 	
 	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
