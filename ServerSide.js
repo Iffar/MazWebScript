@@ -381,8 +381,10 @@ handlers.CheckProgress = function ( args )
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
 				
 						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
+						log += "Progresses: " + progresses.length;
 						progresses.splice(j, 1);
 						needUpdate = true;	
+						log += " -> " + progresses.length;
 					}						
 				}					
 			}
