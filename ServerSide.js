@@ -306,6 +306,7 @@ handlers.buyCharacter = function(args)
 
 handlers.CheckProgress = function ( args )
 {
+	var log = "";
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Mine", "Craft"]}).Data;  // ADD more!
 	var needUpdate = false;	
 	
@@ -371,6 +372,8 @@ handlers.CheckProgress = function ( args )
 					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
+					
+					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
 					
 					if( storedMaterials + amount <= storage )
 					{
@@ -446,7 +449,7 @@ handlers.CheckProgress = function ( args )
 				},
 		});		
 	}
-	return { Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
+	return { msg: log, Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
 
 
