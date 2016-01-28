@@ -372,6 +372,8 @@ handlers.CheckProgress = function ( args )
 					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
+					if( typeof storedMaterials == 'undefined' )
+						storedMaterials = 0;
 					
 					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
 					
