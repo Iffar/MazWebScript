@@ -334,7 +334,7 @@ handlers.CheckProgress = function ( args )
 	
 	log += userData.Mine.Value;
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
-	log+="\n mine lenght: " + mine.lenght;
+	log+="\n mine lenght: " + mine.length;
 	for( i = 0; i < mine.length; i++)
 	{
 		log += "\n "+i+". "+userData.Mine.Value;
@@ -405,7 +405,7 @@ handlers.CheckProgress = function ( args )
 		}
 	}		
 	
-	log+="\n mine lenght: " + mine.lenght;
+	log+="\n mine lenght: " + mine.length;
 	
 	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
