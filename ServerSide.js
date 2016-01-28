@@ -374,6 +374,8 @@ handlers.CheckProgress = function ( args )
 					
 					
 					var storedMaterials = 0
+					log += "\n"+buildingInstance.CustomData.StoredMaterial;
+					
 					if( typeof buildingInstance.CustomData.StoredMaterial == 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 						
