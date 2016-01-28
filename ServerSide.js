@@ -371,10 +371,12 @@ handlers.CheckProgress = function ( args )
 					// Check if there is enough storage
 					var amount = parseInt(info[1]);
 					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
-					var storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
-					if( typeof storedMaterials == 'undefined' )
-						storedMaterials = 0;
 					
+					
+					var storedMaterials = 0
+					if( typeof buildingInstance.CustomData.StoredMaterial == 'undefined')
+						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
+						
 					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
 					
 					if( storedMaterials + amount <= storage )
