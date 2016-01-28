@@ -371,7 +371,7 @@ handlers.CheckProgress = function ( args )
 						if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
 						{
 							buildingInstance = playerInventory.Inventory[i];
-							break;
+							log += "\n ->3/"+i+"b "+mine[i];
 						}
 						
 					}	
