@@ -370,10 +370,9 @@ handlers.CheckProgress = function ( args )
 						log += "\n ->3/"+i+" "+mine[i];
 						if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
 						{
-							buildingInstance = playerInventory.Inventory[i];
+							//buildingInstance = playerInventory.Inventory[i];
 							log += "\n ->3/"+i+"b "+mine[i];
-						}
-						
+						}						
 					}	
 					log += "\n ->4 "+mine[i];
 					
