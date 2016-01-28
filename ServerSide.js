@@ -340,12 +340,12 @@ handlers.CheckProgress = function ( args )
 		log += "\n "+i+". "+mine[i];
 		if(mine[i] != "")
 		{
+			log += "\n -> "+mine[i];
 			var buildingInfo =  mine[i].split (':');
 			var buildingInstanceID = buildingInfo [0];
 			
 			// Deserialize the building queue, and iterate through them
 			var progresses = buildingInfo [1].split ('-');	
-			log += "\n|--|-- Progress length: "+progresses.length;			
 			for( j = 0; j < progresses.length; j++)
 			{
 				log += "\n|--|--|-- "+j+". ";	
@@ -359,12 +359,10 @@ handlers.CheckProgress = function ( args )
 				var info = progresses[j].split (',');
 			
 				// Check if the progress finished
-				log += " check progress finished, ";	
 				if(info [0] <= currTimeSeconds())
 				{		
 					// Get the building instance
 					var buildingInstance;
-					log += " get building instance, ";
 					for(i = 0; i < playerInventory.Inventory.length; i++)
 					{
 						if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
@@ -373,7 +371,6 @@ handlers.CheckProgress = function ( args )
 							break;
 						}
 					}		
-					log += " check if building exists ";
 					if( typeof buildingInstance == 'undefined' )
 						return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
@@ -384,8 +381,7 @@ handlers.CheckProgress = function ( args )
 					var storedMaterials = 0
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
-				
-					log += " check if enought storage, ";
+
 					if( storedMaterials + amount <= storage )
 					{
 						// Update the buildings storage
@@ -394,15 +390,13 @@ handlers.CheckProgress = function ( args )
 				
 						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
 						progresses.splice(j, 1);
-						needUpdate = true;	
-						
-						log += "\n|--|--|-- removed one at "+j+" => "+progresses.length;						
+						needUpdate = true;				
 					}						
 				}					
 			}			
 			
 			log+="\n|-- Mine Progress Lenght: " + mine.length + " ("+mine[i]+")";
-			
+		
 			mine[i] = buildingInstanceID +":"+progresses.join('-');
 			
 			/*if( progresses.length == 0)
