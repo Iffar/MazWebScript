@@ -377,7 +377,7 @@ handlers.CheckProgress = function ( args )
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 						
-					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
+					log += ""+storedMaterials+" + "+amount+" <= "+storage;
 					
 					if( storedMaterials + amount <= storage )
 					{
@@ -402,7 +402,7 @@ handlers.CheckProgress = function ( args )
 	
 	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
-		
+	log += "\n"+mineString;
 		
 	// Check craft progress
 	var craft = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : "";
