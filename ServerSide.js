@@ -331,9 +331,12 @@ handlers.CheckProgress = function ( args )
 	// Check mine progress
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
 	balance = playerInventory.VirtualCurrency;		
+	
+	log += userData.Mine.Value;
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
+		log += "\n "+i+". "+userData.Mine.Value;
 		if(mine[i] != "")
 		{
 			var buildingInfo =  mine[i].split (':');
@@ -377,7 +380,7 @@ handlers.CheckProgress = function ( args )
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 						
-					log += ""+storedMaterials+" + "+amount+" <= "+storage;
+					log += "\n"+storedMaterials+" + "+amount+" <= "+storage;
 					
 					if( storedMaterials + amount <= storage )
 					{
@@ -393,10 +396,11 @@ handlers.CheckProgress = function ( args )
 					}						
 				}					
 			}
-			mine[i] = buildingInstanceID +":"+progresses.join('-');
 			
 			if( progresses.length == 0)
-				mine.splice(i, 1);			
+				mine.splice(i, 1);	
+			else
+				mine[i] = buildingInstanceID +":"+progresses.join('-');				
 		}
 	}		
 	
