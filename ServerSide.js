@@ -377,7 +377,7 @@ handlers.CheckProgress = function ( args )
 					log += "\n ->4 "+mine[i];
 					
 					if( typeof buildingInstance == 'undefined' )
-						return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
+						return { msg: log, error : "You don't own this item ("+buildingInstanceID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
 	
 					log += "\n ->5 "+mine[i];
 					
