@@ -332,9 +332,9 @@ handlers.CheckProgress = function ( args )
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
 	balance = playerInventory.VirtualCurrency;		
 	
-	log += userData.Mine.Value;
+	log += "Mine Progress: "+userData.Mine.Value;
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
-	log+="\n mine lenght: " + mine.length;
+	log+="\n|-- Mine Progress lenght: " + mine.length;
 	for( i = 0; i < mine.length; i++)
 	{
 		log += "\n "+i+". "+mine[i];
@@ -345,7 +345,7 @@ handlers.CheckProgress = function ( args )
 			
 			// Deserialize the building queue, and iterate through them
 			var progresses = buildingInfo [1].split ('-');	
-			log += "\n Progress length: "+progresses.length;			
+			log += "\n|--|-- Progress length: "+progresses.length;			
 			for( j = 0; j < progresses.length; j++)
 			{
 				// If this progress is empty continue the cycle.
@@ -390,7 +390,8 @@ handlers.CheckProgress = function ( args )
 						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
 						progresses.splice(j, 1);
 						needUpdate = true;
-						log += "\n --removed 1 at "+j+" => "+progresses.length;						
+						
+						log += "\n|--|--|-- removed one at "+j+" => "+progresses.length;						
 					}						
 				}					
 			}
@@ -405,11 +406,11 @@ handlers.CheckProgress = function ( args )
 		}
 	}		
 	
-	log+="\n mine lenght: " + mine.length;
+	log+="\n|-- Mine Progress Lenght: " + mine.length;
 	
 	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
-	log += "\n"+mineString;
+	log += "\nNew Mine Progress: "+mineString;
 		
 	// Check craft progress
 	var craft = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : "";
@@ -453,14 +454,14 @@ handlers.CheckProgress = function ( args )
 	if( needUpdate )
 	{
 		// Update the user data, and returns the results.
-		server.UpdateUserData({
+	/*	server.UpdateUserData({
 			PlayFabId: currentPlayerId,
 			Data: {
 				Construct : constructString,
 				Mine : mineString,
 				Craft: craftString				
 				},
-		});		
+		});	*/	
 	}
 	return { msg: log, Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
