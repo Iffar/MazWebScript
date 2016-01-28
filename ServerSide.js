@@ -365,13 +365,13 @@ handlers.CheckProgress = function ( args )
 			
 					// Get the building instance
 					var buildingInstance;
-					for(i = 0; i < playerInventory.Inventory.length; i++)
+					for(cnt = 0; cnt < playerInventory.Inventory.length; cnt++)
 					{
-						log += "\n ->3/"+i+" "+mine[i];
-						if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
+						log += "\n ->3/"+cnt+" "+mine[cnt];
+						if(playerInventory.Inventory[cnt].ItemInstanceId == buildingInstanceID)
 						{
-							//buildingInstance = playerInventory.Inventory[i];
-							log += "\n ->3/"+i+"b "+mine[i];
+							buildingInstance = playerInventory.Inventory[cnt];
+							log += "\n ->3/"+cnt+"b "+mine[cnt];
 						}						
 					}	
 					log += "\n ->4 "+mine[i];
