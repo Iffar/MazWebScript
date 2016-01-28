@@ -374,6 +374,7 @@ handlers.CheckProgress = function ( args )
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 
+						log += storedMaterials +"+"+ amount +"<="+ storage;		
 					if( storedMaterials + amount <= storage )
 					{
 						// Update the buildings storage
