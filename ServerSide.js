@@ -337,7 +337,7 @@ handlers.CheckProgress = function ( args )
 	log+="\n mine lenght: " + mine.length;
 	for( i = 0; i < mine.length; i++)
 	{
-		log += "\n "+i+". "+userData.Mine.Value;
+		log += "\n "+i+". "+mine[i];
 		if(mine[i] != "")
 		{
 			var buildingInfo =  mine[i].split (':');
@@ -398,10 +398,13 @@ handlers.CheckProgress = function ( args )
 				}					
 			}
 			
-			if( progresses.length == 0)
+			
+			mine[i] = buildingInstanceID +":"+progresses.join('-');
+			
+			/*if( progresses.length == 0)
 				mine.splice(i, 1);	
 			else
-				mine[i] = buildingInstanceID +":"+progresses.join('-');				
+				mine[i] = buildingInstanceID +":"+progresses.join('-');		*/		
 		}
 	}		
 	
