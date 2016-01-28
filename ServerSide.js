@@ -340,15 +340,15 @@ handlers.CheckProgress = function ( args )
 		log += "\n "+i+". "+mine[i];
 		if(mine[i] != "")
 		{
-			log += "\n -> "+mine[i];
 			var buildingInfo =  mine[i].split (':');
 			var buildingInstanceID = buildingInfo [0];
+			
+			log += "\n -> "+mine[i];
 			
 			// Deserialize the building queue, and iterate through them
 			var progresses = buildingInfo [1].split ('-');	
 			for( j = 0; j < progresses.length; j++)
 			{
-				log += "\n|--|--|-- "+j+". ";	
 				// If this progress is empty continue the cycle.
 				if (progresses[j] == "") 
 				{
