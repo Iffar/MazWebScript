@@ -451,14 +451,14 @@ handlers.CheckProgress = function ( args )
 	if( needUpdate )
 	{
 		// Update the user data, and returns the results.
-		/*server.UpdateUserData({
+		server.UpdateUserData({
 			PlayFabId: currentPlayerId,
 			Data: {
 				Construct : constructString,
 				Mine : mineString,
 				Craft: craftString				
 				},
-		});		*/
+		});		
 	}
 	return { msg: log, Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
