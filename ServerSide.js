@@ -1,4 +1,8 @@
 ﻿// v0.32
+
+var TIME_TO_REPAIR_ONE_HEALTH = 60;	// seconds
+
+
 function currTimeSeconds()
 {
 	var now = new Date();
@@ -23,6 +27,38 @@ function getAllCharacters( playfabID )
 	return characters;
 }
 
+function CheckBuildingValue(upgrade, tier, amount)
+{
+	// CHECK materials
+	if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
+		return "You don't have enough steel to upgrade this building!";	
+	if( tier > 2 && playerInventory.VirtualCurrency["IR"] < amount)
+		return "You don't have enough iron to upgrade this building!"; 			
+	if( tier > 1 && playerInventory.VirtualCurrency["ST"] < amount)
+		return "You don't have enough stone to upgrade this building!"; 		
+	if( tier > 0 && playerInventory.VirtualCurrency["WO"] < amount)
+		return "You don't have enough wood to upgrade this building!"; 
+	if(playerInventory.VirtualCurrency["GC"] < item.VirtualCurrencyPrices["GC"] * upgrade/2)
+		return "You don't have enough gold to upgrade this building!"; 
+	
+	return "";
+}
+
+function SubtractCurrencyForBuilding(upgrade, tier, amount, balance)
+{
+	if( tier > 3 )
+		balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
+	if( tier > 2 )
+		balance.IR = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "IR", Amount: amount}).Balance;
+	if( tier > 1 )
+		balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
+	if( tier > 0 )
+		balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: parseInt(amount)}).Balance;		
+	
+	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: item.VirtualCurrencyPrices["GC"] * upgrade/2}).Balance;		
+	
+	return balance;		
+}
 
 /*********************************************************************************
 ***************************** GETTING DATA FROM SERVER **************************
@@ -442,7 +478,56 @@ handlers.CheckProgress = function ( args )
 	var craftString = (craft != "" ) ? craft.join("|") : ""; 
 	
 	
-	
+	// Check repair progresses
+	var repair = ((typeof userData.Repair != 'undefined') && (typeof userData.Repair.Value != 'undefined') && userData.Repair.Value != "") ? userData.Repair.Value.split('|') : "";
+	for( i = 0; i < repair.length; i++)
+	{
+		var details = repair[i].split(",");	// 0: buildings id, 1: last check time
+		
+		// Get the building
+		var building;
+		for(cnt = 0; cnt < playerInventory.Inventory.length; cnt++)
+		{
+			if(playerInventory.Inventory[cnt].ItemInstanceId == details[0])
+				building = playerInventory.Inventory[cnt];				
+		}	
+		if( typeof buildingInstance == 'undefined' )
+			return { msg: log, error : "You don't own this item ("+buildingInstanceID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 		
+		
+		var currHP = parseInt(building.CustomData.CurrHealth);
+		var maxHP = parseInt(building.CustomData.HP) * (parseInt(building.CustomData.Upgrade)+1);
+		
+		// Repaired amount until the last check
+		var repairedAmount = (int)((currTimeSeconds() - parseFloat(details[1])) / TIME_TO_REPAIR_ONE_HEALTH); 
+		var remainingHP = maxHP - currHP;
+		if(repairedAmount > remainingHP)
+			repairedAmount = remainingHP;
+		
+		// Subtract Materials
+		var upgrade = parseInt(building.CustomData.Upgrade);
+		var tier = parseInt(upgrade/10);
+		var amount = parseInt( parseInt(item.VirtualCurrencyPrices["WO"]) * ( upgrade - tier * 10));
+				
+		// Check materials
+		var errorMsg = CheckBuildingValue(upgrade, tier, amount);
+		if( errorMsg != "")
+			return { error : errorMsg, serverTime: currTimeSeconds() }; 		
+					
+		// Subtract Virtual Currencies
+		balance = SubtractCurrencyForBuilding(upgrade, tier, amount, balance);
+			
+		// Update building hp	
+		currHP += repairedAmount;
+		building.CustomData.CurrHealth = currHP
+			
+		server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: details[0], Data: building.CustomData});
+		
+		if(curHP == maxHP)
+			repair.splice(i, 1);
+		else
+			repair[i] = details[0] +","+currTimeSeconds();		
+	}		
+	var repairString = (repair != "" ) ? repair.join("|") : ""; 
 	
 	if( needUpdate )
 	{
@@ -452,14 +537,67 @@ handlers.CheckProgress = function ( args )
 			Data: {
 				Construct : constructString,
 				Mine : mineString,
-				Craft: craftString				
+				Craft: craftString,
+				Repair: repairString
 				},
 		});		
 	}
-	return { msg: log, Balance: balance, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
+	return { msg: log, Balance: balance, UserDataRepair: repairString, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
 }
 
+/* This function starts to repair a building.
+ * Parameters: BuildingInstanceID
+ * Steps:
+ *   1. Check if the player has enough free worker.
+ *   2. Calculate the missing HP
+ *   3. Updating the repair data
+ */
+handlers.Repair = function (args)
+{
+	var log = "";
+	
+	var buildingInstanceID = args.BuildingInstanceID;
+	
+	// Get repair & construct data
+	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
+	
+	// Check if have enough worker
+	var underConstruction = ( typeof userData.Construct != 'undefined' && typeof userData.Construct.Value != 'undefined' ) ? userData.Construct.Value.split('|') : "";
+	var repair = ( typeof userData.Repair != 'undefined' && typeof userData.Repair.Value != 'undefined' ) ? userData.Repair.Value.split('|') : "";
+	
+	if((typeof playerInventory.VirtualCurrency.B < 1))
+		return { error : "You don't have any worker!", serverTime: currTimeSeconds() };
+	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency.B)
+		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency.B + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
+		
+	// Get building
+	var buildingInstance;
+	for(cnt = 0; cnt < playerInventory.Inventory.length; cnt++)
+	{
+		if(playerInventory.Inventory[cnt].ItemInstanceId == buildingInstanceID)
+			buildingInstance = playerInventory.Inventory[cnt];				
+	}	
 
+	if( typeof buildingInstance == 'undefined' )
+		return { msg: log, error : "You don't own this item ("+buildingInstanceID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
+						
+	// Check missing & max hp
+	var maxHP = parseInt(buildingInstance.CustomData.HP) * parseInt(buildingInstance.CustomData.Upgrade);
+	var currHP = parseInt(buildingInstance.CustomData.CurrHealth);	
+	if( currHP == maxHP)
+		return { msg: log, error : "This building isn't damaged!", serverTime: currTimeSeconds()  }; 
+	
+	repair += "|" + buildingInstanceID + ","+currTimeSeconds();
+	
+	// update repair data
+	server.UpdateUserData({
+				PlayFabId: currentPlayerId,
+				Data: {Repair : repair},
+	});
+		
+	// Return the informations
+	return { msg : log, BuildingInstanceID: buildingInstanceID, UserDataRepair: repair, serverTime: currTimeSeconds() };
+}
 
 
 /* This function start constructing or upgrading a building.
@@ -503,9 +641,11 @@ handlers.Construct = function (args)
 	
 	/** 1. Check if the player has a free worker.	**/
 	var underConstruction = ( typeof userData.Construct != 'undefined' && typeof userData.Construct.Value != 'undefined' ) ? userData.Construct.Value.split('|') : "";
+	var repair = ( typeof userData.Repair != 'undefined' && typeof userData.Repair.Value != 'undefined' ) ? userData.Repair.Value.split('|') : "";
+	
 	if((typeof playerInventory.VirtualCurrency.B < 1))
 		return { error : "You don't have any worker!", serverTime: currTimeSeconds() };
-	if(underConstruction.length + 1 > playerInventory.VirtualCurrency.B)
+	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency.B)
 		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency.B + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
 	
 	// Get the item data from the catalog
