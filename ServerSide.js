@@ -402,6 +402,7 @@ handlers.CheckProgress = function ( args )
 			}			
 			
 			log+="\n|-- Mine Progress Lenght: " + mine.length;
+			mine[i] = buildingInstanceID +":"+progresses.join('-');
 			
 			/*if( progresses.length == 0)
 				mine.splice(i, 1);	
