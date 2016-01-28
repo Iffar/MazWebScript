@@ -334,7 +334,6 @@ handlers.CheckProgress = function ( args )
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
-		log += "\n "+i+". "+mine[i];
 		if(mine[i] != "")
 		{
 			var buildingInfo =  mine[i].split (':');
@@ -386,22 +385,18 @@ handlers.CheckProgress = function ( args )
 						needUpdate = true;	
 					}						
 				}					
-			}			
+			}
 			
-			log+="\n|-- Mine Progress Lenght: " + mine.length + " ("+mine[i]+")";
+			log += i+". progress length: " + progresses.length;
 			
 			if( progresses.length == 0)
 				mine.splice(i, 1);	
 			else
 				mine[i] = buildingInstanceID +":"+progresses.join('-');
-			
-			log+=" -> " + mine.length + " ("+mine[i]+")";
 		}
 		else
 			mine.splice(i, 1);	
 	}		
-	
-	log+=" -> " + mine.length;
 	
 	// Check storage size in the userdata		
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
