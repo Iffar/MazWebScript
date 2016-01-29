@@ -558,6 +558,8 @@ handlers.Repair = function (args)
 	
 	var buildingInstanceID = args.BuildingInstanceID;
 	
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
+	
 	// Get repair & construct data
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
 	
