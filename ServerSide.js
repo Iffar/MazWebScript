@@ -589,7 +589,9 @@ handlers.Repair = function (args)
 	if( currHP == maxHP)
 		return { msg: log, error : "This building isn't damaged!", serverTime: currTimeSeconds()  }; 
 	
-	repair += "|" + buildingInstanceID + ","+currTimeSeconds();
+	if( repair != "")
+		repair += "|";
+	repair += buildingInstanceID + ","+currTimeSeconds();
 	
 	// update repair data
 	server.UpdateUserData({
