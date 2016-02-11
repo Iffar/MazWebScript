@@ -1,6 +1,8 @@
 ﻿// v0.32
-
 var TIME_TO_REPAIR_ONE_HEALTH = 60;	// seconds
+var TIME_TO_PRODUCE_GOLD = 60; // seconds
+var GOLD_PER_HUT_UPGRADE = 1;	// pieces
+var TIME_TO_MINE = 10 // seconds
 
 
 function currTimeSeconds()
@@ -343,30 +345,98 @@ handlers.buyCharacter = function(args)
 handlers.CheckProgress = function ( args )
 {
 	var log = "";
-	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Mine", "Craft"]}).Data;  // ADD more!
-	var needUpdate = false;	
+	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Mine", "Craft", "Repair", "GoldGeneration", "GoldStorage", "LastGoldTime"]}).Data;  // ADD more!
+	var needUpdate = false;		
+		
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
+	balance = playerInventory.VirtualCurrency;			
+		
+		
+	/****************************** GOLD GENERATION ******************************/		
+	var goldGeneration = ((typeof userData.GoldGeneration != 'undefined') && (typeof userData.GoldGeneration.Value != 'undefined') && userData.GoldGeneration.Value != "") ? userData.GoldGeneration.Value.split('|') : "";
+	var goldStorage = ((typeof userData.GoldStorage != 'undefined') && (typeof userData.GoldStorage.Value != 'undefined') && userData.GoldStorage.Value != "") ? userData.GoldStorage.Value.split('|') : "";
+	var lastGoldTime = ((typeof userData.LastGoldTime != 'undefined') && (typeof userData.LastGoldTime.Value != 'undefined') && userData.LastGoldTime.Value != "") ? parseFloat(userData.LastGoldTime.Value) : 0;
 	
-	// Check construction progresses
+	if( lastGoldTime + TIME_TO_PRODUCE_GOLD <= currTimeSeconds())
+	{
+		var amount = 0;
+		for( cnt = 0; cnt < goldGeneration.length; cnt++)
+		{
+			var data = goldGeneration[i].split(':');
+			amount += parseInt(data[1]) * GOLD_PER_HUT_UPGRADE;
+		}
+		
+		var storage = 0;
+		for( cnt = 0; cnt < goldStorage.length; cnt++)
+		{
+			var data = goldStorage[i].split(':');
+			storage += parseInt(data[1]) * GOLD_PER_BANK_UPGRADE;
+		}		
+		amount = storage - balance.GC;
+		
+		if( amount > 0)
+		{
+			balance.GC = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: amount}).Balance;
+			userData.LastGoldTime = currTimeSeconds();
+		}		
+	}		
+	
+	/************************* CONSTRUCTING ******************************/
 	var construct = ((typeof userData.Construct != 'undefined') && (typeof userData.Construct.Value != 'undefined') && userData.Construct.Value != "") ? userData.Construct.Value.split('|') : "";
 	for( i = 0; i < construct.length; i++)
 	{
 		if(construct[i] != "")
 		{
-			var progress = construct[i].split(':');
+			var progress = construct[i].split(':');	// 0: Building Instance ID, 1: info
+			var info = progress.split(',');			// 0: finish time, 1: itemClass, 2: next upgrade
+						
 			// Check if the progress finished
-			if(progress[1] <= currTimeSeconds())
+			if(info[0] <= currTimeSeconds())
 			{
+				// Increase Gold produce
+				if( info[1] == "Hut")
+				{
+					var addNew = true;
+					for( cnt = 0; cnt < goldGeneration.length; cnt++)
+					{
+						var data = goldGeneration[i].split(':');
+						if( data[0] == progress[0])
+						{
+							goldGeneration[i] = data[0] +":"+info[2];
+							addNew = false;
+						}
+					}
+					if( addNew )
+						goldGeneration[goldGeneration.length] = progress[0] +":"+info[2];
+				}
+				// Increase gold storage
+				else if( info[1] == "Bank")
+				{
+					var addNew = true;
+					for( cnt = 0; cnt < goldStorage.length; cnt++)
+					{
+						var data = goldStorage[i].split(':');
+						if( data[0] == progress[0])
+						{
+							goldStorage[i] = data[0] +":"+info[2];
+							addNew = false;
+						}
+					}
+					if( addNew )
+						goldStorage[goldStorage.length] = progress[0] +":"+info[2];	
+				}			
+				
 				construct.splice(i, 1);
 				needUpdate = true;
 			}				
 		}
 	}		
 	var constructString = (construct != "" ) ? construct.join("|") : ""; 
-		
-	// Check mine progress
-	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
-	balance = playerInventory.VirtualCurrency;		
+	var goldGenerationString = (goldGeneration != "" ) ? goldGeneration.join("|") : "";
+	var goldStorageString = (goldStorage != "" ) ? goldStorage.join("|") : "";
 	
+
+	/****************************** MINING ******************************/	
 	var storages = {};
 	
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
@@ -443,7 +513,13 @@ handlers.CheckProgress = function ( args )
 	var mineString = (mine != "" ) ? mine.join("|") : ""; 
 	log += "\nNew Mine Progress: "+mineString;
 		
-	// Check craft progress
+		
+		
+		
+		
+		
+		
+	/****************************** CRAFTING ******************************/	
 	var craft = ((typeof userData.Craft != 'undefined') && (typeof userData.Craft.Value != 'undefined') && userData.Craft.Value != "") ? userData.Craft.Value.split('|') : "";
 	for( i = 0; i < craft.length; i++)
 	{
@@ -480,7 +556,11 @@ handlers.CheckProgress = function ( args )
 	var craftString = (craft != "" ) ? craft.join("|") : ""; 
 	
 	
-	// Check repair progresses
+	
+	
+	
+	
+	/****************************** REPAIRING ******************************/	
 	var repair = ((typeof userData.Repair != 'undefined') && (typeof userData.Repair.Value != 'undefined') && userData.Repair.Value != "") ? userData.Repair.Value.split('|') : "";
 	for( i = 0; i < repair.length; i++)
 	{
@@ -531,6 +611,12 @@ handlers.CheckProgress = function ( args )
 	}		
 	var repairString = (repair != "" ) ? repair.join("|") : ""; 
 	
+	
+	
+	
+	
+	/****************************** FINALIZE CHANGES ******************************/	
+	
 	if( needUpdate )
 	{
 		// Update the user data, and returns the results.
@@ -540,7 +626,12 @@ handlers.CheckProgress = function ( args )
 				Construct : constructString,
 				Mine : mineString,
 				Craft: craftString,
-				Repair: repairString
+				Repair: repairString,
+				
+				GoldGeneration: goldGenerationString,
+				GoldStorage: goldStorageString,
+				LastGoldTime: userData.LastGoldTime
+				
 				},
 		});		
 	}
@@ -549,9 +640,14 @@ handlers.CheckProgress = function ( args )
 			UserDataConstruct: constructString, 
 			UserDataMine: mineString, 
 			BuildingStorages: storages,
-			UserDataCraft: craftString,
+			UserDataCraft: craftString,			
+			GoldGeneration: goldGenerationString,
+			GoldStorage: goldStorageString,			
 			serverTime: currTimeSeconds() };
 }
+
+
+
 
 /* This function starts to repair a building.
  * Parameters: BuildingInstanceID
@@ -682,6 +778,8 @@ handlers.Construct = function (args)
 	var amount = parseInt(item.VirtualCurrencyPrices["WO"]);
 	var balance = playerInventory.VirtualCurrency;
 	
+	var upgrade = 0;
+	
 	if( !itemInstance )
 	{
 		if(playerInventory.VirtualCurrency["WO"] < amount)
@@ -697,7 +795,7 @@ handlers.Construct = function (args)
 	}
 	else
 	{
-		var upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
+		upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
 		var tier = parseInt(upgrade / 10);
 		var amount = parseInt(amount * ( upgrade - tier * 10));
 		
@@ -754,7 +852,7 @@ handlers.Construct = function (args)
 		if( data != "" )
 			data += "|";
 			
-		data += itemInstanceID+":"+ ( currTimeSeconds() + time );
+		data += itemInstanceID+":"+ ( currTimeSeconds() + time ) + "," + item.ItemClass +","+upgrade;
 		
 		// Update the user "Crafting" data with this building.
 		server.UpdateUserData({
@@ -775,7 +873,7 @@ handlers.Construct = function (args)
 	else
 		customData.CurrHealth = parseInt(customData.CurrHealth) + parseInt(customData.HP);
 	
-	customData.Upgrade = ( !itemInstance ) ? 0 : parseInt(itemInstance.CustomData.Upgrade) + 1;
+	customData.Upgrade = upgrade;
 
 	
 	// Update the position data of the building
@@ -851,7 +949,7 @@ handlers.Mine = function (args)
 	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: price}).Balance;		
 	
 	var data = "";
-	var finishTime = 10;	
+	var finishTime = TIME_TO_MINE;	
 	
 	if( cnt >= 0 )
 	{
