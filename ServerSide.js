@@ -410,15 +410,13 @@ handlers.CheckProgress = function ( args )
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
 						storedMaterials = parseInt(buildingInstance.CustomData.StoredMaterial);
 
-						log += storedMaterials +"+"+ amount +"<="+ storage;		
+					log += storedMaterials +"+"+ amount +"<="+ storage;		
 					if( storedMaterials + amount <= storage )
 					{
 						// Update the buildings storage
 						buildingInstance.CustomData.StoredMaterial = storedMaterials + amount; 
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
 				
-						balance[info[2]] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: info[2], Amount: amount }).Balance;
-						log += "Progresses: " + progresses.length;
 						progresses.splice(j, 1);
 						needUpdate = true;	
 						log += " -> " + progresses.length;
@@ -802,22 +800,6 @@ handlers.Mine = function (args)
 	
 	// Get UserData
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId }).Data;
-	
-	// Get the building data from the catalog -
-/**	Szerintem nem kell....**/
-	/*var item;
-	var itemList = server.GetCatalogItems({ CatalogVersion: "Buildings" }).Catalog;
-	for(i = 0; i < itemList.length; i++)
-	{
-		if(itemList[i].ItemId == itemID)
-		{
-			item = itemList[i];
-			break;
-		}
-	}	
-	// If there is no such item in the catalog, throw an error.
-	if( typeof item == 'undefined' )
-		return { error : "Can't find item ("+itemID+") in the Buildings catalog!", serverTime: currTimeSeconds()  }; */
 				
 	// Get Building Instance
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
@@ -832,10 +814,6 @@ handlers.Mine = function (args)
 	}		
 	if( typeof buildingInstance == 'undefined' )
 		return { error : "You don't own this item ("+itemID+","+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
-	
-	
-	// Check storage
-	// -- TODO --
 		
 	// Check for free mining slots	
 	var cnt = -1;
@@ -854,7 +832,7 @@ handlers.Mine = function (args)
 	
 	// Check prices
 	var balance = playerInventory.VirtualCurrency;
-	var pieces = parseInt(buildingInstance.CustomData.Upgrade)+1;
+	var pieces = 1 /*+parseInt(buildingInstance.CustomData.Upgrade)*/;
 	var price = pieces * parseInt(buildingInstance.CustomData.Price);
 	if(balance.GC < price)
 		return { error : "You don't have enough gold!", serverTime: currTimeSeconds()  }; 		
@@ -892,9 +870,46 @@ handlers.Mine = function (args)
 	// MINE DATA: 
 	//		[BuildingInstanceID] : [finish],[amount],[material] - [finish],[amount],[material] - [finish],[amount],[material] |
 	// 		[BuildingInstanceID] : [finish],[amount],[material] - [finish],[amount],[material] - [finish],[amount],[material] |
-	
-	
+		
 	return { msg : log, UserDataMine: data, Balance: balance, serverTime: currTimeSeconds() };
+}
+
+handlers.CollectMaterials = function (args)
+{
+	var log = "";
+	var buildingInstanceID = args.ItemInstanceID;
+	
+	if( typeof buildingInstanceID == 'undefined' || buildingInstanceID == "")
+		return { error : "Error: only a constructed building can mine!", serverTime: currTimeSeconds()  }; 
+			
+	// Get Building Instance
+	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
+	var buildingInstance;
+	for(i = 0; i < playerInventory.Inventory.length; i++)
+	{
+		if(playerInventory.Inventory[i].ItemInstanceId == buildingInstanceID)
+		{
+			buildingInstance = playerInventory.Inventory[i];
+			break;
+		}
+	}		
+	if( typeof buildingInstance == 'undefined' )
+		return { error : "You don't own this item ("+playerInventory.Inventory.length+")!", serverTime: currTimeSeconds()  }; 
+	
+	var material = buildingInstance.CustomData.Material;
+	var amount = buildingInstance.CustomData.StoredMaterial;
+	var balance = playerInventory.VirtualCurrency;
+	
+	balance[material] = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: material, Amount: amount}).Balance;	
+	buildingInstance.CustomData.StoredMaterial = 0;
+	
+	server.UpdateUserInventoryItemCustomData({ 
+			PlayFabId: currentPlayerId, 
+			ItemInstanceId: buildingInstanceID,
+			Data: buildingInstance.CustomData
+			});
+	
+	return { msg : log, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 /* This function starts the craft progress.
