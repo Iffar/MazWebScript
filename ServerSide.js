@@ -823,7 +823,7 @@ handlers.Construct = function (args)
 		if( tier > 0 )
 			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: parseInt(amount)}).Balance;		
 		
-		int cost = item.VirtualCurrencyPrices["GC"] * upgrade / 2;
+		var cost = item.VirtualCurrencyPrices["GC"] * upgrade / 2;
 		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: cost}).Balance;		
 	}
 		
