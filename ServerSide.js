@@ -389,7 +389,7 @@ handlers.CheckProgress = function ( args )
 		if(construct[i] != "")
 		{
 			var progress = construct[i].split(':');	// 0: Building Instance ID, 1: info
-			var info = progress.split(',');			// 0: finish time, 1: itemClass, 2: next upgrade
+			var info = progress[1].split(',');			// 0: finish time, 1: itemClass, 2: next upgrade
 						
 			// Check if the progress finished
 			if(info[0] <= currTimeSeconds())
