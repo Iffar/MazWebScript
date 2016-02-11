@@ -890,7 +890,7 @@ handlers.CollectMaterials = function (args)
 	var buildingInstanceID = args.ItemInstanceID;
 	
 	if( typeof buildingInstanceID == 'undefined' || buildingInstanceID == "")
-		return { error : "Error: only a constructed building can mine!", serverTime: currTimeSeconds()  }; 
+		return { error : "Error: invalid building instance id!", serverTime: currTimeSeconds()  }; 
 			
 	// Get Building Instance
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
