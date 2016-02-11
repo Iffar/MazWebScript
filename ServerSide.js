@@ -919,7 +919,7 @@ handlers.CollectMaterials = function (args)
 			Data: buildingInstance.CustomData
 			});
 	
-	return { msg : log, Balance: balance, serverTime: currTimeSeconds() };
+	return { msg: log, Balance: balance, serverTime: currTimeSeconds() };
 }
 
 /* This function starts the craft progress.
