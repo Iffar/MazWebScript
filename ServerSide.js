@@ -795,7 +795,7 @@ handlers.Construct = function (args)
 			balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: item.VirtualCurrencyPrices["GC"]}).Balance;		
 	}
 	else
-	{
+	{		
 		upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
 		var tier = parseInt(upgrade / 10);
 		var amount = parseInt(amount * ( upgrade - tier * 10));
@@ -823,7 +823,8 @@ handlers.Construct = function (args)
 		if( tier > 0 )
 			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: parseInt(amount)}).Balance;		
 		
-		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: item.VirtualCurrencyPrices["GC"] * upgrade/2}).Balance;		
+		int cost = item.VirtualCurrencyPrices["GC"] * upgrade / 2;
+		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: cost}).Balance;		
 	}
 		
 	/** 3a. If this is a new building add it to the player. **/
