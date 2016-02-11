@@ -367,6 +367,8 @@ handlers.CheckProgress = function ( args )
 	var playerInventory = server.GetUserInventory({ PlayFabId: currentPlayerId, CatalogVersion: "Buildings" });	
 	balance = playerInventory.VirtualCurrency;		
 	
+	var storages = {};
+	
 	var mine = ((typeof userData.Mine != 'undefined') && (typeof userData.Mine.Value != 'undefined') && userData.Mine.Value != "") ? userData.Mine.Value.split('|') : "";
 	for( i = 0; i < mine.length; i++)
 	{
@@ -416,6 +418,8 @@ handlers.CheckProgress = function ( args )
 						// Update the buildings storage
 						buildingInstance.CustomData.StoredMaterial = storedMaterials + amount; 
 						server.UpdateUserInventoryItemCustomData({ PlayFabId: currentPlayerId, ItemInstanceId: buildingInstanceID, Data: buildingInstance.CustomData});
+				
+						storages[buildingInstanceID] = buildingInstance.CustomData.StoredMaterial;
 				
 						progresses.splice(j, 1);
 						needUpdate = true;	
@@ -540,7 +544,13 @@ handlers.CheckProgress = function ( args )
 				},
 		});		
 	}
-	return { msg: log, Balance: balance, UserDataRepair: repairString, UserDataConstruct: constructString, UserDataMine: mineString, UserDataCraft: craftString, serverTime: currTimeSeconds() };
+	return { msg: log, Balance: balance, 
+			UserDataRepair: repairString, 
+			UserDataConstruct: constructString, 
+			UserDataMine: mineString, 
+			BuildingStorages: storages,
+			UserDataCraft: craftString,
+			serverTime: currTimeSeconds() };
 }
 
 /* This function starts to repair a building.
