@@ -2,7 +2,7 @@
 var TIME_TO_REPAIR_ONE_HEALTH = 60;		// seconds
 var TIME_TO_PRODUCE_GOLD = 60;			// seconds
 var GOLD_PER_HUT_UPGRADE = 1;			// pieces
-var GOLD_PER_BANK_UPGRADE = 100;		// pieces
+var STORAGE_PER_UPGRADE = 100;			// pieces
 var TIME_TO_MINE = 10 					// seconds
 
 
@@ -371,7 +371,7 @@ handlers.CheckProgress = function ( args )
 		for( cnt = 0; cnt < goldStorage.length; cnt++)
 		{
 			var data = goldStorage[i].split(':');
-			storage += parseInt(data[1]) * GOLD_PER_BANK_UPGRADE;
+			storage += parseInt(data[1]) * STORAGE_PER_UPGRADE;
 		}		
 		amount = storage - balance.GC;
 		
@@ -477,7 +477,7 @@ handlers.CheckProgress = function ( args )
 						
 					// Check if there is enough storage
 					var amount = parseInt(info[1]);
-					var storage = parseInt(buildingInstance.CustomData.Storage) * (parseInt(buildingInstance.CustomData.Upgrade)+1);
+					var storage = STORAGE_PER_UPGRADE * (parseInt(buildingInstance.CustomData.Upgrade)+1);
 										
 					var storedMaterials = 0
 					if( typeof buildingInstance.CustomData.StoredMaterial != 'undefined')
