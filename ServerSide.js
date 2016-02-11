@@ -71,7 +71,7 @@ function SubtractCurrencyForBuilding(upgrade, tier, amount, balance)
 /* This function query all the catalogs given in the 'args.Catalogs' parameter. */
 handlers.downloadCatalogs = function(args)	
 {
-	var log = "Download catalog function started.";
+	var log = "ServerLog - downloadCatalogs handler (72.)\n *********\n";
 	
 	var catalogs = args.Catalogs;
 	log += "\n Catalog Versions array length: "+catalogs.length;
@@ -93,7 +93,7 @@ handlers.downloadCatalogs = function(args)
  */
 handlers.getPlayerData = function(args)	
 {
-	var log = "Download player data is started. " + args.PlayfabID;
+	var log = "ServerLog - getPlayerData handler (94.)\n *********\n";
 	
 	var playfabID = args.PlayfabID;
 	if(playfabID == "")
@@ -345,7 +345,7 @@ handlers.buyCharacter = function(args)
 
 handlers.CheckProgress = function ( args )
 {
-	var log = "";
+	var log = "ServerLog - CheckProgress handler (347.)\n *********\n";
 	var userData = server.GetUserData({ PlayFabId: currentPlayerId, Keys: ["Construct", "Mine", "Craft", "Repair", "GoldGeneration", "GoldStorage", "LastGoldTime"]}).Data;  // ADD more!
 	var needUpdate = false;		
 		
@@ -388,7 +388,7 @@ handlers.CheckProgress = function ( args )
 	{
 		if(construct[i] != "")
 		{
-			var progress = construct[i].split(':');	// 0: Building Instance ID, 1: info
+			var progress = construct[i].split(':');		// 0: Building Instance ID, 1: info
 			var info = progress[1].split(',');			// 0: finish time, 1: itemClass, 2: next upgrade
 						
 			// Check if the progress finished
@@ -659,7 +659,7 @@ handlers.CheckProgress = function ( args )
  */
 handlers.Repair = function (args)
 {
-	var log = "";
+	var log = "ServerLog - Repair handler (662.)\n *********\n";
 	
 	var buildingInstanceID = args.BuildingInstanceID;
 	
@@ -719,7 +719,7 @@ handlers.Repair = function (args)
  */
 handlers.Construct = function (args)
 {
-	var log = "LOG:";
+	var log = "ServerLog - Construct handler (722.)\n *********\n";
 	
 	// Set the variables
 	var itemID = args.ItemID;	
@@ -900,7 +900,7 @@ handlers.Construct = function (args)
  */
 handlers.Mine = function (args)
 {
-	var log = "";
+	var log = "ServerLog - Mine handler (903.)\n *********\n";
 	var itemID = args.ItemID;
 	var buildingInstanceID = args.ItemInstanceID;
 	
@@ -985,7 +985,7 @@ handlers.Mine = function (args)
 
 handlers.CollectMaterials = function (args)
 {
-	var log = "";
+	var log = "ServerLog - CollectMaterials handler (988.)\n *********\n";
 	var buildingInstanceID = args.ItemInstanceID;
 	
 	if( typeof buildingInstanceID == 'undefined' || buildingInstanceID == "")
@@ -1027,7 +1027,7 @@ handlers.CollectMaterials = function (args)
  */
 handlers.Craft = function (args)
 {
-	var log = "";
+	var log = "ServerLog - Craft handler (1030.)\n *********\n";
 	
 	var itemID = args.ItemID;										// This is the item that will be crafted.
 	var itemCatalog = args.ItemCatalog;								// The catalag of the item
@@ -1141,7 +1141,7 @@ handlers.Craft = function (args)
  */
 handlers.BuyCharacter = function (args)
 {
-	var log = "";
+	var log = "ServerLog - BuyCharacter handler (1144.)\n *********\n";
 	
 	var itemID = args.ItemID;
 	
