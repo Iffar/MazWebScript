@@ -798,7 +798,7 @@ handlers.Construct = function (args)
 	{		
 		upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
 		var tier = parseFloat(upgrade / 10);
-		var amount = parseInt(amount * ( upgrade - floor(tier) * 10));
+		var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
 		var goldCost = item.VirtualCurrencyPrices["GC"] * upgrade / 2;
 		
 		// CHECK materials
