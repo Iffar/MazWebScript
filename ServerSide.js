@@ -33,7 +33,10 @@ function getAllCharacters( playfabID )
 function CheckBuildingValue(upgrade, amount)
 {
 	var tier = parseFloat(upgrade / 10);
-	var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
+	var multiplier = ( upgrade - Math.floor(tier) * 10);
+	if(multiplier < 0)
+		multiplier = 1;	
+	var amount = amount * multiplier;
 	
 	// CHECK materials
 	if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
@@ -56,7 +59,10 @@ function CheckBuildingValue(upgrade, amount)
 function SubtractCurrencyForBuilding(upgrade, amount, balance)
 {
 	var tier = parseFloat(upgrade / 10);
-	var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
+	var multiplier = ( upgrade - Math.floor(tier) * 10);
+	if(multiplier < 0)
+		multiplier = 1;	
+	var amount = amount * multiplier;
 	
 	if( tier > 3 )
 		balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
