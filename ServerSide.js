@@ -364,14 +364,14 @@ handlers.CheckProgress = function ( args )
 		for( cnt = 0; cnt < goldGeneration.length; cnt++)
 		{
 			var data = goldGeneration[i].split(':');
-			amount += parseInt(data[1]) * GOLD_PER_HUT_UPGRADE;
+			amount += (1+parseInt(data[1])) * GOLD_PER_HUT_UPGRADE;
 		}
 		
 		var storage = 0;
 		for( cnt = 0; cnt < goldStorage.length; cnt++)
 		{
 			var data = goldStorage[i].split(':');
-			storage += parseInt(data[1]) * STORAGE_PER_UPGRADE;
+			storage += (1+parseInt(data[1])) * STORAGE_PER_UPGRADE;
 		}		
 		amount = storage - balance.GC;
 		
