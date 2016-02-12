@@ -428,7 +428,7 @@ handlers.CheckProgress = function ( args )
 					if( addNew )
 						goldStorage[goldStorage.length] = progress[0] +":"+info[2];	
 					
-					log += "\n - last ("+addNew+"). "+ progress[0] +":"+info[2];
+					log += "\n - last ("+goldStorage.length+" - "+addNew+"). "+ progress[0] +":"+info[2];
 				}			
 				
 				construct.splice(i, 1);
