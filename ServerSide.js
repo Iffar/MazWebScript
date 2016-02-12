@@ -823,7 +823,12 @@ handlers.Construct = function (args)
 			balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
 		if( tier > 0 )
 			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: amount}).Balance;		
-				
+		
+		
+		log += "JSON: " + { PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost};
+		
+		return { msg: log };
+		
 		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost}).Balance;		
 	}
 		
