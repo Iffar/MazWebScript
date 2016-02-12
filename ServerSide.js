@@ -638,7 +638,7 @@ handlers.CheckProgress = function ( args )
 				
 				GoldGeneration: goldGenerationString,
 				GoldStorage: goldStorageString,
-				LastGoldTime: userData.LastGoldTime
+				LastGoldTime: userData.LastGoldTime+""
 				
 				},
 		});		
