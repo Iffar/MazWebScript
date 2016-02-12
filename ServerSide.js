@@ -650,7 +650,8 @@ handlers.CheckProgress = function ( args )
 			BuildingStorages: storages,
 			UserDataCraft: craftString,			
 			GoldGeneration: goldGenerationString,
-			GoldStorage: goldStorageString,			
+			GoldStorage: goldStorageString,		
+			LastGoldTime: userData.LastGoldTime,
 			serverTime: currTimeSeconds() };
 }
 
