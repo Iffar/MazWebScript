@@ -30,8 +30,11 @@ function getAllCharacters( playfabID )
 	return characters;
 }
 
-function CheckBuildingValue(upgrade, tier, amount)
+function CheckBuildingValue(upgrade, amount)
 {
+	var tier = parseFloat(upgrade / 10);
+	var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
+	
 	// CHECK materials
 	if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
 		return "You don't have enough steel to upgrade this building!";	
@@ -39,26 +42,34 @@ function CheckBuildingValue(upgrade, tier, amount)
 		return "You don't have enough iron to upgrade this building!"; 			
 	if( tier > 1 && playerInventory.VirtualCurrency["ST"] < amount)
 		return "You don't have enough stone to upgrade this building!"; 		
-	if( tier > 0 && playerInventory.VirtualCurrency["WO"] < amount)
+	if( tier >= 0 && playerInventory.VirtualCurrency["WO"] < amount)
 		return "You don't have enough wood to upgrade this building!"; 
-	if(playerInventory.VirtualCurrency["GC"] < item.VirtualCurrencyPrices["GC"] * upgrade/2)
+	
+	var goldCost = Math.ceil(item.VirtualCurrencyPrices["GC"] * upgrade / 2);
+	
+	if(playerInventory.VirtualCurrency["GC"] < goldCost)
 		return "You don't have enough gold to upgrade this building!"; 
 	
 	return "";
 }
 
-function SubtractCurrencyForBuilding(upgrade, tier, amount, balance)
+function SubtractCurrencyForBuilding(upgrade, amount, balance)
 {
+	var tier = parseFloat(upgrade / 10);
+	var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
+	
 	if( tier > 3 )
 		balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
 	if( tier > 2 )
 		balance.IR = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "IR", Amount: amount}).Balance;
 	if( tier > 1 )
 		balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
-	if( tier > 0 )
+	if( tier >= 0 )
 		balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: parseInt(amount)}).Balance;		
 	
-	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: item.VirtualCurrencyPrices["GC"] * upgrade/2}).Balance;		
+	var goldCost = Math.ceil(item.VirtualCurrencyPrices["GC"] * upgrade / 2);
+	
+	balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost}).Balance;		
 	
 	return balance;		
 }
@@ -595,16 +606,15 @@ handlers.CheckProgress = function ( args )
 		
 		// Subtract Materials
 		var upgrade = parseInt(building.CustomData.Upgrade);
-		var tier = parseInt(upgrade/10);
-		var amount = parseInt( parseInt(item.VirtualCurrencyPrices["WO"]) * ( upgrade - tier * 10));
+		var amount = parseInt(item.VirtualCurrencyPrices["WO"]);
 				
 		// Check materials
-		var errorMsg = CheckBuildingValue(upgrade, tier, amount);
+		var errorMsg = CheckBuildingValue(upgrade, amount);
 		if( errorMsg != "")
 			return { error : errorMsg, serverTime: currTimeSeconds() }; 		
 					
 		// Subtract Virtual Currencies
-		balance = SubtractCurrencyForBuilding(upgrade, tier, amount, balance);
+		balance = SubtractCurrencyForBuilding(upgrade, amount, balance);
 			
 		// Update building hp	
 		currHP += repairedAmount;
@@ -805,34 +815,14 @@ handlers.Construct = function (args)
 	else
 	{		
 		upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
-		var tier = parseFloat(upgrade / 10);
-		var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
-		var goldCost = Math.ceil(item.VirtualCurrencyPrices["GC"] * upgrade / 2);
 		
 		// CHECK materials
-		if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
-			return { error : "You don't have enough steel to upgrade this building!", serverTime: currTimeSeconds() }; 		
-		if( tier > 2 && playerInventory.VirtualCurrency["IR"] < amount)
-			return { error : "You don't have enough iron to upgrade this building!", serverTime: currTimeSeconds() }; 			
-		if( tier > 1 && playerInventory.VirtualCurrency["ST"] < amount)
-			return { error : "You don't have enough stone to upgrade this building!", serverTime: currTimeSeconds() }; 		
-		if( tier > 0 && playerInventory.VirtualCurrency["WO"] < amount)
-			return { error : "You don't have enough wood to upgrade this building!", serverTime: currTimeSeconds() }; 
-		
-		if(playerInventory.VirtualCurrency["GC"] < goldCost )
-			return { error : "You don't have enough gold to upgrade this building!", serverTime: currTimeSeconds() }; 
-		
-		// Buy		
-		if( tier > 3 )
-			balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
-		if( tier > 2 )
-			balance.IR = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "IR", Amount: amount}).Balance;
-		if( tier > 1 )
-			balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
-		if( tier > 0 )
-			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: amount}).Balance;		
-			
-		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost}).Balance;		
+		var errorMsg = CheckBuildingValue(upgrade, amount);
+		if( errorMsg != "")
+			return { error : errorMsg, serverTime: currTimeSeconds() }; 		
+					
+		// Subtract Virtual Currencies
+		balance = SubtractCurrencyForBuilding(upgrade, amount, balance);				
 	}
 		
 	/** 3a. If this is a new building add it to the player. **/
