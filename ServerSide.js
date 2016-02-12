@@ -799,7 +799,7 @@ handlers.Construct = function (args)
 		upgrade = parseInt(itemInstance.CustomData.Upgrade) + 1;
 		var tier = parseFloat(upgrade / 10);
 		var amount = parseInt(amount * ( upgrade - Math.floor(tier) * 10));
-		var goldCost = item.VirtualCurrencyPrices["GC"] * upgrade / 2;
+		var goldCost = Math.ceil(item.VirtualCurrencyPrices["GC"] * upgrade / 2);
 		
 		// CHECK materials
 		if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
@@ -823,12 +823,7 @@ handlers.Construct = function (args)
 			balance.ST = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "ST", Amount: amount}).Balance;
 		if( tier > 0 )
 			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: amount}).Balance;		
-		
-		
-		log += "\nJSON: { PlayFabId: "+currentPlayerId+", VirtualCurrency: GC, Amount:"+ goldCost+"}";
-		
-		return { msg: log };
-		
+			
 		balance.GC = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost}).Balance;		
 	}
 		
