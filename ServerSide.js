@@ -378,7 +378,7 @@ handlers.CheckProgress = function ( args )
 		if( amount > 0)
 		{
 			balance.GC = server.AddUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: amount}).Balance;
-			userData.LastGoldTime = currTimeSeconds();
+			lastGoldTime = currTimeSeconds();
 		}		
 	}		
 	
@@ -638,7 +638,7 @@ handlers.CheckProgress = function ( args )
 				
 				GoldGeneration: goldGenerationString,
 				GoldStorage: goldStorageString,
-				LastGoldTime: userData.LastGoldTime+""
+				LastGoldTime: lastGoldTime+""
 				
 				},
 		});		
@@ -651,7 +651,7 @@ handlers.CheckProgress = function ( args )
 			UserDataCraft: craftString,			
 			GoldGeneration: goldGenerationString,
 			GoldStorage: goldStorageString,		
-			LastGoldTime: userData.LastGoldTime,
+			LastGoldTime: lastGoldTime,
 			serverTime: currTimeSeconds() };
 }
 
