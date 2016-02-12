@@ -432,10 +432,12 @@ handlers.CheckProgress = function ( args )
 			}				
 		}
 	}		
+	
 	var constructString = (construct != "" ) ? construct.join("|") : ""; 
 	var goldGenerationString = (goldGeneration != "" ) ? goldGeneration.join("|") : "";
 	var goldStorageString = (goldStorage != "" ) ? goldStorage.join("|") : "";
 	
+	log += "\n"+goldGenerationString;
 
 	/****************************** MINING ******************************/	
 	var storages = {};
