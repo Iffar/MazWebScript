@@ -825,7 +825,7 @@ handlers.Construct = function (args)
 			balance.WO = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WO", Amount: amount}).Balance;		
 		
 		
-		log += "JSON: " + { PlayFabId: currentPlayerId, VirtualCurrency: "GC", Amount: goldCost};
+		log += "\nJSON: { PlayFabId: "+currentPlayerId+", VirtualCurrency: GC, Amount:"+ goldCost+"}";
 		
 		return { msg: log };
 		
