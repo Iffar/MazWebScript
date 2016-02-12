@@ -356,7 +356,7 @@ handlers.CheckProgress = function ( args )
 	/****************************** GOLD GENERATION ******************************/		
 	var goldGeneration = ((typeof userData.GoldGeneration != 'undefined') && (typeof userData.GoldGeneration.Value != 'undefined') && userData.GoldGeneration.Value != "") ? userData.GoldGeneration.Value.split('|') : [];
 	var goldStorage = ((typeof userData.GoldStorage != 'undefined') && (typeof userData.GoldStorage.Value != 'undefined') && userData.GoldStorage.Value != "") ? userData.GoldStorage.Value.split('|') : [];
-	var lastGoldTime = ((typeof userData.LastGoldTime != 'undefined') && (typeof userData.LastGoldTime.Value != 'undefined') && userData.LastGoldTime.Value != "") ? parseFloat(userData.LastGoldTime.Value) : 0;
+	var lastGoldTime = ((typeof userData.LastGoldTime != 'undefined') && (typeof userData.LastGoldTime.Value != 'undefined') && userData.LastGoldTime.Value != "") ? parseFloat(userData.LastGoldTime.Value) : currTimeSeconds() - TIME_TO_PRODUCE_GOLD;
 	
 	if( lastGoldTime + TIME_TO_PRODUCE_GOLD <= currTimeSeconds())
 	{
