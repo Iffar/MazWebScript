@@ -413,6 +413,7 @@ handlers.CheckProgress = function ( args )
 				// Increase gold storage
 				else if( info[1] == "Bank")
 				{
+					log += "\n Bank built or upgraded!";
 					var addNew = true;
 					for( cnt = 0; cnt < goldStorage.length; cnt++)
 					{
@@ -437,7 +438,8 @@ handlers.CheckProgress = function ( args )
 	var goldGenerationString = (goldGeneration != "" ) ? goldGeneration.join("|") : "";
 	var goldStorageString = (goldStorage != "" ) ? goldStorage.join("|") : "";
 	
-	log += "\n"+goldGenerationString;
+	log += "\n Gold Generation String: "+goldGenerationString;
+	log += "\n Gold Storage String: "+goldStorageString;
 
 	/****************************** MINING ******************************/	
 	var storages = {};
