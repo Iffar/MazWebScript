@@ -39,7 +39,7 @@ function CheckBuildingValue(upgrade, amount)
 	var amount = amount * multiplier;
 	
 	// CHECK materials
-	if( tier > 3 && playerInventory.VirtualCurrency["SI"] < amount)
+	if( tier > 3 && playerInventory.VirtualCurrency["SL"] < amount)
 		return "You don't have enough steel to upgrade this building!";	
 	if( tier > 2 && playerInventory.VirtualCurrency["IR"] < amount)
 		return "You don't have enough iron to upgrade this building!"; 			
@@ -65,7 +65,7 @@ function SubtractCurrencyForBuilding(upgrade, amount, balance)
 	var amount = amount * multiplier;
 	
 	if( tier > 3 )
-		balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SI", Amount: amount}).Balance;
+		balance.SI = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "SL", Amount: amount}).Balance;
 	if( tier > 2 )
 		balance.IR = server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "IR", Amount: amount}).Balance;
 	if( tier > 1 )
@@ -696,10 +696,10 @@ handlers.Repair = function (args)
 	var underConstruction = ( typeof userData.Construct != 'undefined' && typeof userData.Construct.Value != 'undefined' ) ? userData.Construct.Value.split('|') : "";
 	var repair = ( typeof userData.Repair != 'undefined' && typeof userData.Repair.Value != 'undefined' ) ? userData.Repair.Value.split('|') : "";
 	
-	if((typeof playerInventory.VirtualCurrency.B < 1))
+	if((typeof playerInventory.VirtualCurrency["0B"] < 1))
 		return { error : "You don't have any worker!", serverTime: currTimeSeconds() };
-	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency.B)
-		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency.B + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
+	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency["0B"])
+		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency["0B"] + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
 		
 	// Get building
 	var buildingInstance;
@@ -776,10 +776,10 @@ handlers.Construct = function (args)
 	var underConstruction = ( typeof userData.Construct != 'undefined' && typeof userData.Construct.Value != 'undefined' ) ? userData.Construct.Value.split('|') : "";
 	var repair = ( typeof userData.Repair != 'undefined' && typeof userData.Repair.Value != 'undefined' ) ? userData.Repair.Value.split('|') : "";
 	
-	if((typeof playerInventory.VirtualCurrency.B < 1))
+	if((typeof playerInventory.VirtualCurrency["0B"] < 1))
 		return { error : "You don't have any worker!", serverTime: currTimeSeconds() };
-	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency.B)
-		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency.B + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
+	if(underConstruction.length + repair.length + 1 > playerInventory.VirtualCurrency["0B"])
+		return { error : "Not enough worker (has "+ playerInventory.VirtualCurrency["0B"] + " and needs "+(underConstruction.length + 1)+" )!", serverTime: currTimeSeconds() };
 	
 	// Get the item data from the catalog
 	var item;
@@ -850,7 +850,7 @@ handlers.Construct = function (args)
 	}	
 	
 	// If the time is not instant
-	var time = item.VirtualCurrencyPrices["T"];
+	var time = item.VirtualCurrencyPrices["0T"];
 	
 	data = (typeof userData.Construct != 'undefined' && typeof userData.Construct.Value != 'undefined') ? userData.Construct.Value : "";
 	if(time > 0)
